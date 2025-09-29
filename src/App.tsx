@@ -1,23 +1,183 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, Plus, Target, TrendingUp, Building, Star, Link, FileText, RotateCcw, RotateCw, Check, MoreHorizontal, HelpCircle } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ChevronLeft, ChevronRight, ChevronDown, Plus, Target, TrendingUp, Building, Star, Link, FileText, RotateCcw, RotateCw, Check, MoreHorizontal, HelpCircle, Folder, Pencil, Trash2 } from 'lucide-react';
+
+// Account type groupings and subtype definitions
+const ACCOUNT_TYPE_GROUPS = {
+  cash: {
+    title: 'Cash Accounts',
+    items: [
+      { key: 'checking', label: 'Checking' },
+      { key: 'savings', label: 'Savings' },
+      { key: 'cash', label: 'Cash' },
+    ],
+  },
+  credit: {
+    title: 'Credit Accounts',
+    items: [
+      { key: 'credit_card', label: 'Credit Card' },
+      { key: 'line_of_credit', label: 'Line of Credit' },
+    ],
+  },
+  loans: {
+    title: 'Loans',
+    items: [
+      { key: 'mortgage', label: 'Mortgage' },
+      { key: 'auto_loan', label: 'Auto Loan' },
+      { key: 'student_loan', label: 'Student Loan' },
+      { key: 'personal_loan', label: 'Personal Loan' },
+      { key: 'medical_debt', label: 'Medical Debt' },
+      { key: 'other_debt', label: 'Other Debt' },
+    ],
+  },
+  tracking: {
+    title: 'Tracking Accounts',
+    items: [
+      { key: 'asset', label: 'Asset (e.g. Investment)' },
+      { key: 'liability', label: 'Liability' },
+    ],
+  },
+} as const;
+
+type GroupKey = keyof typeof ACCOUNT_TYPE_GROUPS;
+
+type SubtypeKey = typeof ACCOUNT_TYPE_GROUPS[GroupKey]['items'][number]['key'];
+
+const getGroupForSubtype = (subtype: string): GroupKey => {
+  for (const g of Object.keys(ACCOUNT_TYPE_GROUPS) as GroupKey[]) {
+    if (ACCOUNT_TYPE_GROUPS[g].items.find(i => i.key === subtype)) return g;
+  }
+  return 'cash';
+};
 
 const App = () => {
   // State Management
   const [currentMonth, setCurrentMonth] = useState(new Date(2025, 8, 1));
-  const [activeView, setActiveView] = useState('Plan');
+  const [activeView, setActiveView] = useState('PreBudget');
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [filterTab, setFilterTab] = useState('All');
   const [showAddAccount, setShowAddAccount] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [allCategoriesSelected, setAllCategoriesSelected] = useState(false);
   const [focusedCategory, setFocusedCategory] = useState(null);
+  // Budget selection/creation (Pre-Budget screen)
+  const [budgetName, setBudgetName] = useState('Budget');
+  const [showCreateBudget, setShowCreateBudget] = useState(false);
+  const [newBudgetName, setNewBudgetName] = useState('');
+  const [plans, setPlans] = useState<{ id: string; name: string; lastUsed: string }[]>([]);
+  const [showBudgetMenu, setShowBudgetMenu] = useState(false);
+  const [openPlanOpen, setOpenPlanOpen] = useState(false);
+  const budgetMenuRef = useRef<HTMLDivElement | null>(null);
+  const budgetMenuButtonRef = useRef<HTMLButtonElement | null>(null);
+  // Rename/Delete modals
+  const [showRenamePlan, setShowRenamePlan] = useState(false);
+  const [showDeletePlan, setShowDeletePlan] = useState(false);
+  const [planTargetId, setPlanTargetId] = useState<string | null>(null);
+  const [renameInput, setRenameInput] = useState('');
+  // Modal step for Add Account flow (kept separate from main activeView)
+  const [addAccountStep, setAddAccountStep] = useState<'form' | 'type' | 'success'>('form');
   
+  // Load/save plans
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('plans');
+      if (saved) setPlans(JSON.parse(saved));
+      const current = localStorage.getItem('currentPlan');
+      if (current) setBudgetName(current);
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem('plans', JSON.stringify(plans));
+    } catch {}
+  }, [plans]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('currentPlan', budgetName);
+    } catch {}
+  }, [budgetName]);
+
+  // Helpers for plan operations
+  const openPlan = (planId: string) => {
+    const plan = plans.find(p => p.id === planId);
+    if (!plan) return;
+    setBudgetName(plan.name);
+    setActiveView('Plan');
+    const now = new Date().toISOString();
+    setPlans(prev => prev
+      .map(p => p.id === planId ? { ...p, lastUsed: now } : p)
+      .sort((a,b) => new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime())
+    );
+    setShowBudgetMenu(false);
+    setOpenPlanOpen(false);
+  };
+
+  const createPlan = (name: string) => {
+    const trimmed = name.trim() || 'Budget';
+    const now = new Date().toISOString();
+    setPlans(prev => {
+      const exists = prev.find(p => p.name === trimmed);
+      const next = exists
+        ? prev.map(p => p.name === trimmed ? { ...p, lastUsed: now } : p)
+        : [...prev, { id: Date.now().toString(), name: trimmed, lastUsed: now }];
+      return next.sort((a,b) => new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime());
+    });
+    setBudgetName(trimmed);
+    setActiveView('Plan');
+    setShowCreateBudget(false);
+    setNewBudgetName('');
+  };
+
+  const renamePlan = (planId: string, newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+    setPlans(prev => prev.map(p => p.id === planId ? { ...p, name: trimmed } : p));
+    if (plans.find(p => p.id === planId)?.name === budgetName) {
+      setBudgetName(trimmed);
+    }
+  };
+
+  const deletePlan = (planId: string) => {
+    const removed = plans.find(p => p.id === planId);
+    setPlans(prev => prev.filter(p => p.id !== planId));
+    if (removed && removed.name === budgetName) {
+      // If current plan deleted, go back to prebudget
+      setActiveView('PreBudget');
+      setBudgetName('Budget');
+    }
+  };
+
+  // Close menus on outside click or Escape
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      const menuEl = budgetMenuRef.current;
+      const btnEl = budgetMenuButtonRef.current;
+      if (!menuEl || !btnEl) return;
+      const target = e.target as Node;
+      if (!menuEl.contains(target) && !btnEl.contains(target)) {
+        setShowBudgetMenu(false);
+        setOpenPlanOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowBudgetMenu(false);
+        setOpenPlanOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, []);
+
   // Account Data
   const [accounts, setAccounts] = useState([
-    { id: 1, name: 'Chequing', balance: 500.00, type: 'cash', clearedBalance: 500.00, unclearedBalance: 0 },
-    { id: 2, name: 'Savings', balance: 0.00, type: 'cash', clearedBalance: 0.00, unclearedBalance: 0 },
-    { id: 3, name: 'Credit Card', balance: -100.00, type: 'credit', clearedBalance: -100.00, unclearedBalance: 0 }
-  ]);
+    { id: 1, name: 'Chequing', balance: 500.00, group: 'cash', subtype: 'checking', clearedBalance: 500.00, unclearedBalance: 0 },
+    { id: 2, name: 'Savings', balance: 0.00, group: 'cash', subtype: 'savings', clearedBalance: 0.00, unclearedBalance: 0 },
+    { id: 3, name: 'Credit Card', balance: -100.00, group: 'credit', subtype: 'credit_card', clearedBalance: -100.00, unclearedBalance: 0 }
+  ] as any);
 
   // Transaction Data
   const [transactions, setTransactions] = useState({
@@ -84,7 +244,7 @@ const App = () => {
   ]);
 
   // Form States
-  const [newAccount, setNewAccount] = useState({ name: '', type: 'cash', balance: '' });
+  const [newAccount, setNewAccount] = useState({ name: '', group: '', subtype: '', balance: '' });
   const [newTransaction, setNewTransaction] = useState({
     date: new Date().toISOString().split('T')[0],
     payee: '',
@@ -118,8 +278,8 @@ const App = () => {
 
   const calculateReadyToAssign = () => {
     const cashTotal = accounts
-      .filter(acc => acc.type === 'cash')
-      .reduce((sum, acc) => sum + acc.balance, 0);
+      .filter((acc: any) => acc.group === 'cash')
+      .reduce((sum: number, acc: any) => sum + acc.balance, 0);
     
     const totalAssigned = categoryGroups.reduce((sum, group) => 
       sum + group.categories.reduce((catSum, cat) => catSum + cat.assigned, 0), 0
@@ -203,38 +363,43 @@ const App = () => {
   };
 
   const addAccount = () => {
-    if (newAccount.name) {
-      const balance = parseFloat(newAccount.balance) || 0;
-      const newAcct = {
+    if (newAccount.name && newAccount.subtype !== '' && newAccount.balance !== '') {
+      const raw = parseFloat(newAccount.balance) || 0;
+      const group = newAccount.group || getGroupForSubtype(newAccount.subtype);
+
+      // Balance sign rules
+      const isDebt = group === 'credit' || group === 'loans' || (group === 'tracking' && newAccount.subtype === 'liability');
+      const normalizedBalance = isDebt ? -Math.abs(raw) : Math.abs(raw);
+
+      const newAcct: any = {
         id: accounts.length + 1,
         name: newAccount.name,
-        type: newAccount.type,
-        balance: balance,
-        clearedBalance: balance,
-        unclearedBalance: 0
+        group,
+        subtype: newAccount.subtype,
+        balance: normalizedBalance,
+        clearedBalance: normalizedBalance,
+        unclearedBalance: 0,
       };
+
       setAccounts([...accounts, newAcct]);
-      
-      if (balance !== 0) {
-        setTransactions(prev => ({
-          ...prev,
-          [newAcct.id]: [{
-            id: 1,
-            date: new Date().toLocaleDateString('en-US'),
-            payee: 'Starting Balance',
-            category: balance > 0 ? 'Inflow: Ready to Assign' : '',
-            memo: '',
-            outflow: balance < 0 ? Math.abs(balance) : null,
-            inflow: balance > 0 ? balance : null,
-            cleared: true
-          }]
-        }));
+
+      // Starting transaction rules: only affect the budget for cash
+      if (raw !== 0) {
+        const isCash = group === 'cash';
+        const tx = {
+          id: 1,
+          date: new Date().toLocaleDateString('en-US'),
+          payee: 'Starting Balance',
+          category: isCash && normalizedBalance > 0 ? 'Inflow: Ready to Assign' : '',
+          memo: '',
+          outflow: isCash ? (normalizedBalance < 0 ? Math.abs(normalizedBalance) : null) : (isDebt ? Math.abs(raw) : null),
+          inflow: isCash ? (normalizedBalance > 0 ? normalizedBalance : null) : (!isDebt ? Math.abs(raw) : null),
+          cleared: true,
+        } as any;
+        setTransactions(prev => ({ ...prev, [newAcct.id]: [tx] }));
       } else {
         setTransactions(prev => ({ ...prev, [newAcct.id]: [] }));
       }
-      
-      setNewAccount({ name: '', type: 'cash', balance: '' });
-      setShowAddAccount(false);
     }
   };
 
@@ -259,28 +424,189 @@ const App = () => {
     width: '256px'
   };
 
+  const sectionTitle = (label: string) => (
+    <span className="text-xs uppercase opacity-50 tracking-wider">{label}</span>
+  );
+
   const activeButtonStyle = {
     backgroundColor: '#393B6B'
   };
 
   return (
-    <div className="h-screen flex bg-gray-50">
+    <>
+      {activeView === 'PreBudget' ? (
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-6xl mx-auto px-6 py-10">
+            <h1 className="text-2xl font-semibold mb-6">Your Plans</h1>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {/* Existing plans */}
+              {plans.map(p => (
+                <div key={p.id} className="aspect-[4/3] bg-white rounded-xl border shadow-sm flex flex-col">
+                  <div className="flex-1 p-4 flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="w-16 h-16 text-blue-500" fill="currentColor">
+                      <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                    </svg>
+                  </div>
+                  <div className="px-4 pb-4">
+                    <div className="flex items-center justify-between">
+                      <button onClick={() => openPlan(p.id)} className="font-semibold text-gray-900 hover:text-blue-600 text-left truncate">{p.name}</button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => { setPlanTargetId(p.id); setRenameInput(p.name); setShowRenamePlan(true); }}
+                          className="p-1 rounded hover:bg-gray-100"
+                          title="Rename"
+                        >
+                          <Pencil className="w-4 h-4 text-gray-600" />
+                        </button>
+                        <button
+                          onClick={() => { setPlanTargetId(p.id); setShowDeletePlan(true); }}
+                          className="p-1 rounded hover:bg-gray-100"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">Last used {new Date(p.lastUsed).toLocaleDateString()}</div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Create New Plan Card */}
+              <button
+                onClick={() => setShowCreateBudget(true)}
+                className="aspect-[4/3] rounded-xl border-2 border-dashed border-gray-300 hover:border-green-500 hover:bg-green-50 transition-colors flex items-center justify-center"
+              >
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center mb-3">+
+                  </div>
+                  <div className="font-medium text-gray-700">Create New Plan</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Create Budget Modal */}
+          {showCreateBudget && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={(e) => { if (e.target === e.currentTarget) { setShowCreateBudget(false); } }}>
+              <div className="bg-white w-full max-w-md rounded-lg shadow-xl overflow-hidden">
+                <div className="px-6 py-4 border-b">
+                  <h2 className="text-lg font-semibold">Create New Plan</h2>
+                </div>
+                <div className="p-6 space-y-3">
+                  <label className="block text-sm font-medium text-gray-700">Plan name</label>
+                  <input
+                    type="text"
+                    value={newBudgetName}
+                    onChange={(e) => setNewBudgetName(e.target.value)}
+                    placeholder="e.g., Household, Business, Vacation"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="px-6 py-4 border-t bg-gray-50 flex gap-3">
+                  <button
+                    onClick={() => { setShowCreateBudget(false); setNewBudgetName(''); }}
+                    className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => createPlan(newBudgetName)}
+                    className="ml-auto px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    Create
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/*       ) : (
+        <div className="h-screen flex bg-gray-50" onClick={() => { /* close popovers when clicking main content */ setShowBudgetMenu(false); setOpenPlanOpen(false); }}>
       {/* Left Sidebar */}
       <div style={sidebarStyle} className="text-white flex flex-col">
         <div className="p-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white">
-                  <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-                </svg>
+          <div className="relative">
+            <button
+              ref={budgetMenuButtonRef}
+              onClick={() => setShowBudgetMenu(v => !v)}
+              className="w-full flex items-center justify-between mb-2"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-semibold text-lg">{budgetName}</div>
+                  <div className="text-xs opacity-75 text-left">perezcipolab@gmail.com</div>
+                </div>
               </div>
-              <div>
-                <div className="font-semibold text-lg">Budget</div>
-                <div className="text-xs opacity-75">perezcipolab@gmail.com</div>
+              <ChevronDown className="w-5 h-5 opacity-75" />
+            </button>
+
+            {showBudgetMenu && (
+              <div ref={budgetMenuRef} className="absolute left-0 top-full mt-2 bg-white text-gray-900 rounded-lg shadow-xl w-64 z-20">
+                <div className="py-2">
+                  <button
+                    onClick={() => { setShowCreateBudget(true); setShowBudgetMenu(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 text-left"
+                  >
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200">
+                      <Plus className="w-4 h-4" />
+                    </span>
+                    <span className="font-medium">New Plan</span>
+                  </button>
+
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setOpenPlanOpen(true)}
+                    onMouseLeave={() => setOpenPlanOpen(false)}
+                  >
+                    <div
+                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => setOpenPlanOpen(v => !v)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Folder className="w-5 h-5 text-gray-600" />
+                        <span className="font-medium">Open Plan</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                    </div>
+                    {openPlanOpen && (
+                      <div className="absolute left-full top-0 ml-2 bg-white rounded-lg shadow-xl w-64 z-30">
+                        <div className="px-4 py-2 text-xs font-semibold text-gray-500">Recent Plans</div>
+                        <div className="py-1 max-h-60 overflow-auto">
+                          {plans.length === 0 ? (
+                            <div className="px-4 py-2 text-sm text-gray-500">No plans yet</div>
+                          ) : (
+                            plans.slice(0, 6).map((p) => (
+                              <button
+                                key={p.id}
+                                onClick={() => openPlan(p.id)}
+                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
+                              >
+                                <FileText className="w-5 h-5 text-gray-600" />
+                                <span className="text-sm">{p.name}</span>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                        <div className="border-t my-1" />
+                        <button
+                          onClick={() => { setShowBudgetMenu(false); setActiveView('PreBudget'); setOpenPlanOpen(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 text-left"
+                        >
+                          <Folder className="w-5 h-5 text-gray-600" />
+                          <span className="font-medium">View All Plans</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-            <ChevronDown className="w-5 h-5 opacity-75 cursor-pointer hover:opacity-100" />
+            )}
           </div>
 
           <nav className="space-y-1">
@@ -314,13 +640,13 @@ const App = () => {
         <div className="flex-1 px-4 overflow-auto">
           <div className="mt-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs uppercase opacity-50 tracking-wider">Cash</span>
+              {sectionTitle('Cash')}
               <span className="text-sm font-medium text-right">
-                ${accounts.filter(a => a.type === 'cash').reduce((sum, a) => sum + a.balance, 0).toFixed(2)}
+                ${accounts.filter((a: any) => a.group === 'cash').reduce((sum: number, a: any) => sum + a.balance, 0).toFixed(2)}
               </span>
             </div>
             <div className="space-y-1">
-              {accounts.filter(a => a.type === 'cash').map(account => (
+              {accounts.filter((a: any) => a.group === 'cash').map((account: any) => (
                 <div
                   key={account.id}
                   onClick={() => handleAccountClick(account)}
@@ -336,13 +662,13 @@ const App = () => {
 
           <div className="mt-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs uppercase opacity-50 tracking-wider">Credit</span>
+              {sectionTitle('Credit')}
               <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
-                -${Math.abs(accounts.filter(a => a.type === 'credit').reduce((sum, a) => sum + a.balance, 0)).toFixed(2)}
+                -${Math.abs(accounts.filter((a: any) => a.group === 'credit').reduce((sum: number, a: any) => sum + a.balance, 0)).toFixed(2)}
               </span>
             </div>
             <div className="space-y-1">
-              {accounts.filter(a => a.type === 'credit').map(account => (
+              {accounts.filter((a: any) => a.group === 'credit').map((account: any) => (
                 <div
                   key={account.id}
                   onClick={() => handleAccountClick(account)}
@@ -358,12 +684,60 @@ const App = () => {
             </div>
           </div>
 
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-2">
+              {sectionTitle('Loans')}
+              <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
+                -${Math.abs(accounts.filter((a: any) => a.group === 'loans').reduce((sum: number, a: any) => sum + a.balance, 0)).toFixed(2)}
+              </span>
+            </div>
+            <div className="space-y-1">
+              {accounts.filter((a: any) => a.group === 'loans').map((account: any) => (
+                <div
+                  key={account.id}
+                  onClick={() => handleAccountClick(account)}
+                  className="flex justify-between items-center py-2 px-3 rounded-lg cursor-pointer transition-colors hover:bg-white/10"
+                  style={selectedAccount?.id === account.id ? activeButtonStyle : {}}
+                >
+                  <span className="text-sm">{account.name}</span>
+                  <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
+                    -${Math.abs(account.balance).toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-2">
+              {sectionTitle('Tracking')}
+              <span className="text-sm font-medium text-right">
+                ${accounts.filter((a: any) => a.group === 'tracking').reduce((sum: number, a: any) => sum + a.balance, 0).toFixed(2)}
+              </span>
+            </div>
+            <div className="space-y-1">
+              {accounts.filter((a: any) => a.group === 'tracking').map((account: any) => (
+                <div
+                  key={account.id}
+                  onClick={() => handleAccountClick(account)}
+                  className="flex justify-between items-center py-2 px-3 rounded-lg cursor-pointer transition-colors hover:bg-white/10"
+                  style={selectedAccount?.id === account.id ? activeButtonStyle : {}}
+                >
+                  <span className="text-sm">{account.name}</span>
+                  <span className="text-sm font-medium text-right">${account.balance.toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <button
-            onClick={() => setShowAddAccount(true)}
-            className="mt-6 flex items-center gap-2 text-sm opacity-75 hover:opacity-100 transition-opacity w-full px-3 py-2"
+            onClick={() => { setAddAccountStep('form'); setShowAddAccount(true); }}
+            className="mt-6 w-full flex items-center gap-3 text-sm font-medium text-white rounded-2xl px-4 py-2.5 bg-white/10 hover:bg-white/20 transition-colors"
           >
-            <Plus className="w-4 h-4" />
-            Add Account
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-[#1D1F58]">
+              <Plus className="w-4 h-4" />
+            </span>
+            <span>Add Account</span>
           </button>
         </div>
 
@@ -564,60 +938,153 @@ const App = () => {
 
       {/* Add Account Modal */}
       {showAddAccount && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-96 p-6">
-            <h2 className="text-xl font-semibold mb-4">Add Account</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
-                <input
-                  type="text"
-                  value={newAccount.name}
-                  onChange={(e) => setNewAccount({...newAccount, name: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
-                <select
-                  value={newAccount.type}
-                  onChange={(e) => setNewAccount({...newAccount, type: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="cash">Cash</option>
-                  <option value="credit">Credit</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Current Balance</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={newAccount.balance}
-                  onChange={(e) => setNewAccount({...newAccount, balance: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={(e) => { if (e.target === e.currentTarget) setShowAddAccount(false); }}>
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-[360px] h-[600px] p-0 overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Add Account</h2>
+              <button onClick={() => setShowAddAccount(false)} className="text-gray-500 hover:text-gray-700">×</button>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowAddAccount(false)}
-                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={addAccount}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Add Account
-              </button>
+
+            {/* Body */}
+            <div className="p-6 flex-1 overflow-auto">
+              {/* Step: Type Selection Subpage */}
+              {addAccountStep === 'type' ? (
+                <div className="space-y-6">
+                  {(Object.keys(ACCOUNT_TYPE_GROUPS) as GroupKey[]).map((g) => (
+                    <div key={g}>
+                      <div className="text-sm font-semibold text-gray-700 mb-1">{ACCOUNT_TYPE_GROUPS[g].title}</div>
+                      <div className="text-xs text-gray-500 mb-3">
+                        {g === 'cash' && 'A cash account holds funds you already own and can spend immediately.'}
+                        {g === 'credit' && "A credit account lets you spend borrowed money that you'll need to repay later, often with interest."}
+                        {g === 'loans' && 'Loan accounts track debts you owe and will repay over time.'}
+                        {g === 'tracking' && 'Tracking accounts do not affect your budget totals.'}
+                      </div>
+                      <div className="space-y-2">
+                        {ACCOUNT_TYPE_GROUPS[g].items.map(item => (
+                          <button
+                            key={item.key}
+                            onClick={() => {
+                              const group = g;
+                              setNewAccount({ ...newAccount, group, subtype: item.key as any });
+                              setAddAccountStep('form');
+                            }}
+                            className="w-full text-left px-4 py-3 rounded-lg border hover:bg-gray-50"
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : addAccountStep === 'success' ? (
+                <div className="h-full text-center flex flex-col items-center justify-center space-y-6">
+                  <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                    <Check className="text-green-600 w-8 h-8" />
+                  </div>
+                  <div className="text-2xl font-semibold">Success!</div>
+                  <div className="text-gray-600 max-w-md mx-auto">
+                    Add transactions anytime. Tracking accounts don’t affect your budget.
+                  </div>
+                </div>
+              ) : (
+                // Default: Form step
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm font-medium mb-1">Give it a nickname</div>
+                    <input
+                      type="text"
+                      value={newAccount.name}
+                      onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="text-sm font-medium mb-1">What type of account are you adding?</div>
+                    <button
+                      onClick={() => setAddAccountStep('type')}
+                      className="w-full px-3 py-2 border rounded-lg flex items-center justify-between hover:bg-gray-50"
+                    >
+                      <span className={newAccount.subtype ? 'text-gray-900' : 'text-gray-500'}>
+                        {newAccount.subtype
+                          ? ACCOUNT_TYPE_GROUPS[newAccount.group as GroupKey]?.items.find(i => i.key === (newAccount.subtype as any))?.label || 'Select account type...'
+                          : 'Select account type...'}
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                    </button>
+                  </div>
+
+                  <div>
+                    <div className="text-sm font-medium mb-1">What is your current account balance?</div>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={newAccount.balance}
+                      onChange={(e) => setNewAccount({ ...newAccount, balance: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="0.00"
+                    />
+                    <div className="text-xs text-gray-500 mt-1">
+                      For Credit, Loans, and Liabilities, positive amounts will be stored as negative balances.
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t bg-gray-50 flex gap-3">
+              {addAccountStep === 'type' ? (
+                <button
+                  onClick={() => setAddAccountStep('form')}
+                  className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+                >
+                  Back
+                </button>
+              ) : addAccountStep === 'success' ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setNewAccount({ name: '', group: '', subtype: '', balance: '' });
+                      setAddAccountStep('form');
+                    }}
+                    className="px-4 py-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                  >
+                    Add Another
+                  </button>
+                  <button
+                    onClick={() => setShowAddAccount(false)}
+                    className="ml-auto px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    Done
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setShowAddAccount(false)}
+                    className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => { addAccount(); setAddAccountStep('success'); }}
+                    disabled={!newAccount.name || !newAccount.subtype || newAccount.balance === ''}
+                    className={`ml-auto px-4 py-2 rounded-lg ${(!newAccount.name || !newAccount.subtype || newAccount.balance === '') ? 'bg-blue-300 cursor-not-allowed text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                  >
+                    Next
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
       )}
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 
