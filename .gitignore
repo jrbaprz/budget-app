@@ -36,3 +36,4 @@ coverage/
 # OS / misc
 Thumbs.db
 .DS_Store
+.vercel

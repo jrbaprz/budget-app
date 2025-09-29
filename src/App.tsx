@@ -248,9 +248,9 @@ const App = () => {
 
   // Common cell styles for alignment
   const cellStyle = {
-    assigned: { textAlign: 'right', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', fontSize: '14px', fontWeight: '500' },
-    activity: { textAlign: 'right', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', fontSize: '14px', fontWeight: '500' },
-    available: { textAlign: 'right', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', fontSize: '14px', fontWeight: '500' }
+    assigned: { textAlign: 'right' as const, paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', fontSize: '14px', fontWeight: '500' },
+    activity: { textAlign: 'right' as const, paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', fontSize: '14px', fontWeight: '500' },
+    available: { textAlign: 'right' as const, paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', fontSize: '14px', fontWeight: '500' }
   };
 
   // Sidebar Styles
@@ -462,7 +462,7 @@ const App = () => {
                   return (
                     <React.Fragment key={group.id}>
                       {/* Group Header Row */}
-                      <tr className="border-b" style={{ backgroundColor: '#F8F6F2' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#F0EDE6'} onMouseLeave={(e) => e.target.style.backgroundColor = '#F8F6F2'}>
+                      <tr className="border-b" style={{ backgroundColor: '#F8F6F2' }} onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = '#F0EDE6'} onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = '#F8F6F2'}>
                         <td className="px-2 py-3">
                           <button
                             onClick={() => toggleGroup(group.id)}
