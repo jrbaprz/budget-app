@@ -42,6 +42,16 @@ type GroupKey = keyof typeof ACCOUNT_TYPE_GROUPS;
 
 type SubtypeKey = typeof ACCOUNT_TYPE_GROUPS[GroupKey]['items'][number]['key'];
 
+// Plan Settings for currency/locale/date formatting
+type PlanSettings = {
+  currency: 'CAD' | 'USD' | 'EUR' | 'GBP' | 'AUD';
+  placement: 'before' | 'after';
+  numberFormat: '123,456.78' | '123.456,78' | '123 456,78' | "123’456.78";
+  dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD';
+};
+
+type Plan = { id: string; name: string; lastUsed: string; settings?: PlanSettings };
+
 const getGroupForSubtype = (subtype: string): GroupKey => {
   for (const g of Object.keys(ACCOUNT_TYPE_GROUPS) as GroupKey[]) {
     if (ACCOUNT_TYPE_GROUPS[g].items.find(i => i.key === subtype)) return g;
@@ -63,11 +73,28 @@ const App = () => {
   const [budgetName, setBudgetName] = useState('Budget');
   const [showCreateBudget, setShowCreateBudget] = useState(false);
   const [newBudgetName, setNewBudgetName] = useState('');
-  const [plans, setPlans] = useState<{ id: string; name: string; lastUsed: string }[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [showBudgetMenu, setShowBudgetMenu] = useState(false);
   const [openPlanOpen, setOpenPlanOpen] = useState(false);
   const budgetMenuRef = useRef<HTMLDivElement | null>(null);
   const budgetMenuButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  // Create Plan modal fields
+  const [planCurrency, setPlanCurrency] = useState('CAD');
+  const [currencyPlacement, setCurrencyPlacement] = useState<'before' | 'after'>('before');
+  const [numberFormat, setNumberFormat] = useState('123,456.78');
+  const [dateFormat, setDateFormat] = useState('MM/DD/YYYY');
+
+  // Default settings for migration and new plans
+  const getDefaultSettings = (): PlanSettings => ({
+    currency: 'CAD',
+    placement: 'before',
+    numberFormat: '123,456.78',
+    dateFormat: 'MM/DD/YYYY',
+  });
+
+  // Active plan settings used by UI formatting
+  const [currentSettings, setCurrentSettings] = useState<PlanSettings>(getDefaultSettings());
   // Rename/Delete modals
   const [showRenamePlan, setShowRenamePlan] = useState(false);
   const [showDeletePlan, setShowDeletePlan] = useState(false);
@@ -80,7 +107,21 @@ const App = () => {
   useEffect(() => {
     try {
       const saved = localStorage.getItem('plans');
-      if (saved) setPlans(JSON.parse(saved));
+      if (saved) {
+        const loadedPlans = JSON.parse(saved) as Plan[];
+        // Migrate plans that don't have settings
+        const migratedPlans = loadedPlans.map(plan => ({
+          ...plan,
+          settings: plan.settings || getDefaultSettings()
+        }));
+        setPlans(migratedPlans);
+        
+        // Save migrated plans back if any were missing settings
+        const needsMigration = loadedPlans.some(p => !p.settings);
+        if (needsMigration) {
+          localStorage.setItem('plans', JSON.stringify(migratedPlans));
+        }
+      }
       const current = localStorage.getItem('currentPlan');
       if (current) setBudgetName(current);
     } catch {}
@@ -101,6 +142,7 @@ const App = () => {
     const plan = plans.find(p => p.id === planId);
     if (!plan) return;
     setBudgetName(plan.name);
+    setCurrentSettings(plan.settings || getDefaultSettings());
     setActiveView('Plan');
     const now = new Date().toISOString();
     setPlans(prev => prev
@@ -114,14 +156,21 @@ const App = () => {
   const createPlan = (name: string) => {
     const trimmed = name.trim() || 'Budget';
     const now = new Date().toISOString();
+    const newSettings: PlanSettings = {
+      currency: planCurrency as any,
+      placement: currencyPlacement,
+      numberFormat: numberFormat as PlanSettings['numberFormat'],
+      dateFormat: dateFormat as PlanSettings['dateFormat'],
+    };
     setPlans(prev => {
       const exists = prev.find(p => p.name === trimmed);
       const next = exists
-        ? prev.map(p => p.name === trimmed ? { ...p, lastUsed: now } : p)
-        : [...prev, { id: Date.now().toString(), name: trimmed, lastUsed: now }];
+        ? prev.map(p => p.name === trimmed ? { ...p, lastUsed: now, settings: newSettings } : p)
+        : [...prev, { id: Date.now().toString(), name: trimmed, lastUsed: now, settings: newSettings }];
       return next.sort((a,b) => new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime());
     });
     setBudgetName(trimmed);
+    setCurrentSettings(newSettings);
     setActiveView('Plan');
     setShowCreateBudget(false);
     setNewBudgetName('');
@@ -255,13 +304,38 @@ const App = () => {
   });
 
   // Helper Functions
-  const formatCurrency = (value) => {
-    if (!value && value !== 0) return '$0.00';
-    return `$${parseFloat(value).toFixed(2)}`;
+  // Map numberFormat to a representative locale for grouping/decimal separators
+  const numberFormatToLocale: Record<PlanSettings['numberFormat'], string> = {
+    '123,456.78': 'en-CA',
+    '123.456,78': 'de-DE',
+    '123 456,78': 'fr-FR',
+    "123’456.78": 'de-CH',
+  };
+
+  const formatMoney = (value: number) => {
+    const { currency, placement, numberFormat } = currentSettings;
+    const locale = numberFormatToLocale[numberFormat] || 'en-CA';
+    // Use Intl to format, but reconstruct placement to honor explicit choice
+    const nf = new Intl.NumberFormat(locale, { style: 'currency', currency });
+    const parts = nf.formatToParts(Math.abs(value));
+    const amount = parts.filter(p => p.type !== 'currency' && p.type !== 'literal' && p.type !== 'minusSign').map(p => p.value).join('');
+    const symbol = parts.find(p => p.type === 'currency')?.value ?? '';
+    const sign = value < 0 ? '-' : '';
+    return placement === 'before' ? `${sign}${symbol}${amount}` : `${sign}${amount}${symbol}`;
   };
 
   const parseCurrency = (value) => {
     return value.replace(/[^0-9.-]/g, '');
+  };
+
+  const formatDate = (date: Date) => {
+    const df = currentSettings.dateFormat;
+    const y = String(date.getFullYear());
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    if (df === 'DD/MM/YYYY') return `${d}/${m}/${y}`;
+    if (df === 'YYYY-MM-DD') return `${y}-${m}-${d}`;
+    return `${m}/${d}/${y}`; // MM/DD/YYYY
   };
 
   const calculateCategoryActivity = (categoryName) => {
@@ -434,7 +508,7 @@ const App = () => {
 
   return (
     <>
-      {activeView === 'PreBudget' ? (
+      {activeView === 'PreBudget' && (
         <div className="min-h-screen bg-gray-50">
           <div className="max-w-6xl mx-auto px-6 py-10">
             <h1 className="text-2xl font-semibold mb-6">Your Plans</h1>
@@ -467,7 +541,7 @@ const App = () => {
                         </button>
                       </div>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">Last used {new Date(p.lastUsed).toLocaleDateString()}</div>
+                    <div className="text-xs text-gray-500 mt-1">Last used {formatDate(new Date(p.lastUsed))}</div>
                   </div>
                 </div>
               ))}
@@ -486,24 +560,88 @@ const App = () => {
             </div>
           </div>
 
-          {/* Create Budget Modal */}
+          {/* Create Plan Modal */}
           {showCreateBudget && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={(e) => { if (e.target === e.currentTarget) { setShowCreateBudget(false); } }}>
-              <div className="bg-white w-full max-w-md rounded-lg shadow-xl overflow-hidden">
-                <div className="px-6 py-4 border-b">
-                  <h2 className="text-lg font-semibold">Create New Plan</h2>
+              <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden">
+                {/* Header */}
+                <div className="px-6 py-4 border-b flex items-center justify-between">
+                  <h2 className="text-2xl font-semibold">New Plan</h2>
+                  <button className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                    Migrate a YNAB 4 Plan <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
-                <div className="p-6 space-y-3">
-                  <label className="block text-sm font-medium text-gray-700">Plan name</label>
-                  <input
-                    type="text"
-                    value={newBudgetName}
-                    onChange={(e) => setNewBudgetName(e.target.value)}
-                    placeholder="e.g., Household, Business, Vacation"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+
+                {/* Body */}
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Plan Name</label>
+                    <input
+                      type="text"
+                      value={newBudgetName}
+                      onChange={(e) => setNewBudgetName(e.target.value)}
+                      placeholder="e.g., Household, Business, Vacation"
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                    <select
+                      className="w-full px-3 py-2 border rounded-lg bg-white"
+                      value={planCurrency}
+                      onChange={(e) => setPlanCurrency(e.target.value)}
+                    >
+                      <option value="CAD">Canadian Dollar—CAD</option>
+                      <option value="USD">US Dollar—USD</option>
+                      <option value="EUR">Euro—EUR</option>
+                      <option value="GBP">British Pound—GBP</option>
+                      <option value="AUD">Australian Dollar—AUD</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Currency Placement</label>
+                    <select
+                      className="w-full px-3 py-2 border rounded-lg bg-white"
+                      value={currencyPlacement}
+                      onChange={(e) => setCurrencyPlacement(e.target.value as any)}
+                    >
+                      <option value="before">Before amount (${numberFormat})</option>
+                      <option value="after">After amount ({numberFormat}$)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Number Format</label>
+                    <select
+                      className="w-full px-3 py-2 border rounded-lg bg-white"
+                      value={numberFormat}
+                      onChange={(e) => setNumberFormat(e.target.value)}
+                    >
+                      <option>123,456.78</option>
+                      <option>123.456,78</option>
+                      <option>123 456,78</option>
+                      <option>123’456.78</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date Format</label>
+                    <select
+                      className="w-full px-3 py-2 border rounded-lg bg-white"
+                      value={dateFormat}
+                      onChange={(e) => setDateFormat(e.target.value)}
+                    >
+                      <option value="MM/DD/YYYY">12/30/2025</option>
+                      <option value="DD/MM/YYYY">30/12/2025</option>
+                      <option value="YYYY-MM-DD">2025-12-30</option>
+                    </select>
+                  </div>
                 </div>
-                <div className="px-6 py-4 border-t bg-gray-50 flex gap-3">
+
+                {/* Footer */}
+                <div className="px-6 py-4 border-t bg-gray-50 flex gap-3 justify-end">
                   <button
                     onClick={() => { setShowCreateBudget(false); setNewBudgetName(''); }}
                     className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
@@ -512,16 +650,19 @@ const App = () => {
                   </button>
                   <button
                     onClick={() => createPlan(newBudgetName)}
-                    className="ml-auto px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                    disabled={!newBudgetName.trim()}
                   >
-                    Create
+                    Create Plan
                   </button>
                 </div>
               </div>
             </div>
           )}
+        </div>
+      )}
 
-          {/*       ) : (
+      {activeView !== 'PreBudget' && (
         <div className="h-screen flex bg-gray-50" onClick={() => { /* close popovers when clicking main content */ setShowBudgetMenu(false); setOpenPlanOpen(false); }}>
       {/* Left Sidebar */}
       <div style={sidebarStyle} className="text-white flex flex-col">
@@ -642,7 +783,7 @@ const App = () => {
             <div className="flex items-center justify-between mb-2">
               {sectionTitle('Cash')}
               <span className="text-sm font-medium text-right">
-                ${accounts.filter((a: any) => a.group === 'cash').reduce((sum: number, a: any) => sum + a.balance, 0).toFixed(2)}
+                {formatMoney(accounts.filter((a: any) => a.group === 'cash').reduce((sum: number, a: any) => sum + a.balance, 0))}
               </span>
             </div>
             <div className="space-y-1">
@@ -654,7 +795,8 @@ const App = () => {
                   style={selectedAccount?.id === account.id ? activeButtonStyle : {}}
                 >
                   <span className="text-sm">{account.name}</span>
-                  <span className="text-sm font-medium text-right">${account.balance.toFixed(2)}</span>
+                  <span className="text-sm font-medium text-right">{formatMoney(account.balance)}</span>
+
                 </div>
               ))}
             </div>
@@ -664,7 +806,7 @@ const App = () => {
             <div className="flex items-center justify-between mb-2">
               {sectionTitle('Credit')}
               <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
-                -${Math.abs(accounts.filter((a: any) => a.group === 'credit').reduce((sum: number, a: any) => sum + a.balance, 0)).toFixed(2)}
+                {formatMoney(-Math.abs(accounts.filter((a: any) => a.group === 'credit').reduce((sum: number, a: any) => sum + a.balance, 0)))}
               </span>
             </div>
             <div className="space-y-1">
@@ -677,8 +819,9 @@ const App = () => {
                 >
                   <span className="text-sm">{account.name}</span>
                   <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
-                    -${Math.abs(account.balance).toFixed(2)}
+                    {formatMoney(-Math.abs(account.balance))}
                   </span>
+
                 </div>
               ))}
             </div>
@@ -688,7 +831,7 @@ const App = () => {
             <div className="flex items-center justify-between mb-2">
               {sectionTitle('Loans')}
               <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
-                -${Math.abs(accounts.filter((a: any) => a.group === 'loans').reduce((sum: number, a: any) => sum + a.balance, 0)).toFixed(2)}
+                {formatMoney(-Math.abs(accounts.filter((a: any) => a.group === 'loans').reduce((sum: number, a: any) => sum + a.balance, 0)))}
               </span>
             </div>
             <div className="space-y-1">
@@ -712,7 +855,7 @@ const App = () => {
             <div className="flex items-center justify-between mb-2">
               {sectionTitle('Tracking')}
               <span className="text-sm font-medium text-right">
-                ${accounts.filter((a: any) => a.group === 'tracking').reduce((sum: number, a: any) => sum + a.balance, 0).toFixed(2)}
+                {formatMoney(accounts.filter((a: any) => a.group === 'tracking').reduce((sum: number, a: any) => sum + a.balance, 0))}
               </span>
             </div>
             <div className="space-y-1">
@@ -752,7 +895,7 @@ const App = () => {
       {activeView === 'Plan' && !selectedAccount && (
         <div className="flex-1 flex flex-col">
           <div className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
+            <div className="flex itemscenter justify-between">
               <div className="flex items-center gap-4">
                 <button onClick={() => changeMonth(-1)} className="p-1 hover:bg-gray-100 rounded">
                   <ChevronLeft className="w-5 h-5" />
@@ -769,7 +912,7 @@ const App = () => {
                   readyToAssign > 0 ? 'bg-yellow-100 text-yellow-800' :
                   'bg-red-100 text-red-800'
                 }`}>
-                  <div className="text-2xl font-bold">${Math.abs(readyToAssign).toFixed(2)}</div>
+                  <div className="text-2xl font-bold">{formatMoney(Math.abs(readyToAssign))}</div>
                   <div className="text-xs">Ready to Assign</div>
                 </div>
                 <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2">
@@ -854,9 +997,9 @@ const App = () => {
                           />
                         </td>
                         <td className="py-3 font-medium text-sm" style={{ paddingLeft: '16px' }}>{group.name}</td>
-                        <td style={cellStyle.assigned}>${groupAssigned.toFixed(2)}</td>
-                        <td style={cellStyle.activity}>${groupActivity.toFixed(2)}</td>
-                        <td style={cellStyle.available}>${groupAvailable.toFixed(2)}</td>
+                        <td style={cellStyle.assigned}>{formatMoney(groupAssigned)}</td>
+                        <td style={cellStyle.activity}>{formatMoney(groupActivity)}</td>
+                        <td style={cellStyle.available}>{formatMoney(groupAvailable)}</td>
                       </tr>
 
                       {/* Category Rows */}
@@ -902,16 +1045,16 @@ const App = () => {
                                   className="cursor-text"
                                   style={{ color: category.assigned ? 'inherit' : '#9CA3AF' }}
                                 >
-                                  {formatCurrency(category.assigned)}
+                                  {formatMoney(category.assigned || 0)}
                                 </div>
                               )}
                             </td>
-                            <td style={cellStyle.activity}>${activity.toFixed(2)}</td>
+                            <td style={cellStyle.activity}>{formatMoney(activity)}</td>
                             <td style={cellStyle.available}>
                               {isCreditCard ? (
                                 <div className="flex items-center justify-end gap-2">
                                   <span style={{ color: isOverspent ? '#DC2626' : available > 0 ? '#16A34A' : '#4B5563' }}>
-                                    ${available.toFixed(2)}
+                                    {formatMoney(available)}
                                   </span>
                                   <span className="bg-yellow-400 text-yellow-900 text-xs px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1 whitespace-nowrap">
                                     <HelpCircle className="w-3 h-3" />
@@ -920,7 +1063,7 @@ const App = () => {
                                 </div>
                               ) : (
                                 <span style={{ color: isOverspent ? '#DC2626' : available > 0 ? '#16A34A' : '#4B5563' }}>
-                                  ${available.toFixed(2)}
+                                  {formatMoney(available)}
                                 </span>
                               )}
                             </td>
@@ -934,6 +1077,8 @@ const App = () => {
             </table>
           </div>
         </div>
+      )}
+      </div>
       )}
 
       {/* Add Account Modal */}
@@ -1082,6 +1227,81 @@ const App = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Plan Modal */}
+      {showDeletePlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={(e) => { if (e.target === e.currentTarget) { setShowDeletePlan(false); } }}>
+          <div className="bg-white w-full max-w-md rounded-lg shadow-xl overflow-hidden">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-red-600">Delete Plan</h2>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-700">
+                Are you sure you want to delete this plan? This action cannot be undone.
+              </p>
+            </div>
+            <div className="px-6 py-4 border-t bg-gray-50 flex gap-3">
+              <button
+                onClick={() => setShowDeletePlan(false)}
+                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (planTargetId) {
+                    setPlans(plans.filter(p => p.id !== planTargetId));
+                    setPlanTargetId(null);
+                  }
+                  setShowDeletePlan(false);
+                }}
+                className="ml-auto px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rename Plan Modal */}
+      {showRenamePlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={(e) => { if (e.target === e.currentTarget) { setShowRenamePlan(false); } }}>
+          <div className="bg-white w-full max-w-md rounded-lg shadow-xl overflow-hidden">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold">Rename Plan</h2>
+            </div>
+            <div className="p-6 space-y-3">
+              <label className="block text-sm font-medium text-gray-700">Plan name</label>
+              <input
+                type="text"
+                value={renameInput}
+                onChange={(e) => setRenameInput(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="px-6 py-4 border-t bg-gray-50 flex gap-3">
+              <button
+                onClick={() => { setShowRenamePlan(false); setRenameInput(''); }}
+                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (planTargetId && renameInput.trim()) {
+                    setPlans(plans.map(p => p.id === planTargetId ? { ...p, name: renameInput.trim() } : p));
+                    setPlanTargetId(null);
+                  }
+                  setShowRenamePlan(false);
+                  setRenameInput('');
+                }}
+                className="ml-auto px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>
