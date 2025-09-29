@@ -315,7 +315,7 @@ const App = () => {
           <div className="mt-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs uppercase opacity-50 tracking-wider">Cash</span>
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium text-right">
                 ${accounts.filter(a => a.type === 'cash').reduce((sum, a) => sum + a.balance, 0).toFixed(2)}
               </span>
             </div>
@@ -328,7 +328,7 @@ const App = () => {
                   style={selectedAccount?.id === account.id ? activeButtonStyle : {}}
                 >
                   <span className="text-sm">{account.name}</span>
-                  <span className="text-sm font-medium">${account.balance.toFixed(2)}</span>
+                  <span className="text-sm font-medium text-right">${account.balance.toFixed(2)}</span>
                 </div>
               ))}
             </div>
@@ -337,7 +337,7 @@ const App = () => {
           <div className="mt-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs uppercase opacity-50 tracking-wider">Credit</span>
-              <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300">
+              <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
                 -${Math.abs(accounts.filter(a => a.type === 'credit').reduce((sum, a) => sum + a.balance, 0)).toFixed(2)}
               </span>
             </div>
@@ -350,7 +350,7 @@ const App = () => {
                   style={selectedAccount?.id === account.id ? activeButtonStyle : {}}
                 >
                   <span className="text-sm">{account.name}</span>
-                  <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300">
+                  <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
                     -${Math.abs(account.balance).toFixed(2)}
                   </span>
                 </div>
