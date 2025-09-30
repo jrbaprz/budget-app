@@ -52,10 +52,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     loans: true,
     tracking: true,
   });
-  const [sidebarWidth, setSidebarWidth] = useState(250);
+  const [sidebarWidth, setSidebarWidth] = useState(275);
   const [isResizing, setIsResizing] = useState(false);
   const startXRef = useRef<number>(0);
-  const startWidthRef = useRef<number>(250);
+  const startWidthRef = useRef<number>(275);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   const toggleGroup = (group: string) => {
@@ -114,17 +114,17 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <div 
       ref={sidebarRef}
-      className="relative flex flex-col gap-[32px] h-full bg-[#fdfcfc] px-4 py-6"
-      style={{ width: `${sidebarWidth}px` }}
+      className="relative flex flex-col gap-[32px] h-full bg-[#fdfcfc] overflow-y-auto pt-[16px] px-[8px]"
+      style={{ width: `${sidebarWidth}px`, minWidth: '275px' }}
     >
       {/* Header Section */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-[16px]">
         {/* Budget Name Header */}
         <button
           onClick={onBudgetMenuClick}
-          className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors"
+          className="flex items-center justify-between p-[8px] hover:bg-gray-50 rounded-lg transition-colors"
         >
-          <div className="flex flex-col gap-1 text-left">
+          <div className="flex flex-col gap-[4px] text-left">
             <div 
               className="text-[26px] font-medium leading-[32px]" 
               style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
@@ -145,28 +145,30 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </button>
 
-        {/* Navigation Card */}
+      {/* Navigation Card */}
         <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
           {navItems.map((item, index) => {
             const isActive = activeView === item.key && !selectedAccount;
             return (
               <React.Fragment key={item.key}>
-                <button
-                  onClick={() => onViewChange(item.key)}
-                  className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
-                    isActive ? 'bg-neutral-100' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div 
-                    className="text-[16px] font-medium leading-[25.2px]" 
-                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                <div className="box-border flex gap-[12px] h-[80px] items-center p-[8px]">
+                  <button
+                    onClick={() => onViewChange(item.key)}
+                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[16px] transition-colors rounded-[8px] ${
+                      isActive ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                    }`}
                   >
-                    {item.label}
-                  </div>
-                  <div className="w-[10px] h-[11px] text-[#32302f]">
-                    {item.icon}
-                  </div>
-                </button>
+                    <div 
+                      className="text-[16px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                    >
+                      {item.label}
+                    </div>
+                    <div className="w-[10px] h-[11px] text-[#32302f]">
+                      {item.icon}
+                    </div>
+                  </button>
+                </div>
                 {index < navItems.length - 1 && (
                   <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
                 )}
@@ -177,7 +179,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Accounts Section */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-[16px]">
         <div 
           className="text-[26px] font-medium leading-[32px]" 
           style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
@@ -185,41 +187,77 @@ const Sidebar: React.FC<SidebarProps> = ({
           Accounts
         </div>
 
+        {/* Empty State - No Accounts */}
+        {accounts.length === 0 && (
+          <>
+            <div className="bg-white box-border flex flex-col gap-[24px] items-start p-[8px] rounded-[16px] shadow-[0px_1px_8px_0px_rgba(0,0,0,0.1)] w-full">
+              <div className="bg-[#ecf2f6] box-border flex flex-col gap-[8px] items-start p-[16px] rounded-[8px] w-full">
+                <div 
+                  className="text-[18px] font-medium leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                >
+                  No accounts
+                </div>
+                <div 
+                  className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
+                >
+                  Click the button below to add an account and get started on your plan.
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={onAddAccount}
+              className="bg-[rgba(0,0,0,0.06)] rounded-[72px] px-[17px] py-[15px] min-h-[48px] flex items-center justify-center gap-2 hover:bg-[rgba(0,0,0,0.08)] transition-colors"
+            >
+              <Plus className="w-4 h-4" style={{ color: textColor }} />
+              <div 
+                className="text-[16px] font-medium leading-[18px]" 
+                style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+              >
+                Add an account
+              </div>
+            </button>
+          </>
+        )}
+
         {/* Cash Accounts */}
         {accounts.filter((a) => a.group === 'cash').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
-            <button
-              onClick={() => toggleGroup('cash')}
-              className="flex items-center justify-between w-full h-[80px] px-[24px] hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex flex-col items-start gap-0">
-                <div 
-                  className="text-[16px] font-medium leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                >
-                  Cash
+            <div className="box-border flex gap-[12px] h-[80px] items-center p-[8px]">
+              <button
+                onClick={() => toggleGroup('cash')}
+                className="flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] px-[16px] py-[8px] hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex flex-col items-start gap-0">
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                  >
+                    Cash
+                  </div>
+                  <div 
+                    className="text-[14px] leading-[22px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
+                  >
+                    {accounts.filter((a) => a.group === 'cash').length} accounts
+                  </div>
                 </div>
-                <div 
-                  className="text-[14px] leading-[22px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
-                >
-                  {accounts.filter((a) => a.group === 'cash').length} accounts
+                <div className="flex items-center gap-[16px]">
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                  >
+                    {formatMoney(accounts.filter((a) => a.group === 'cash').reduce((sum, a) => sum + a.balance, 0))}
+                  </div>
+                  <div className={`transform transition-transform ${expandedGroups.cash ? 'rotate-90' : '-rotate-90'}`}>
+                    <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
+                      <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div 
-                  className="text-[16px] font-medium leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                >
-                  {formatMoney(accounts.filter((a) => a.group === 'cash').reduce((sum, a) => sum + a.balance, 0))}
-                </div>
-                <div className={`transform transition-transform ${expandedGroups.cash ? 'rotate-90' : '-rotate-90'}`}>
-                  <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
-                    <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-            </button>
+              </button>
+            </div>
             
             <div 
               className="transition-all duration-300 ease-in-out overflow-hidden"
@@ -229,26 +267,27 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
               {accounts.filter((a) => a.group === 'cash').map((account) => (
-                <button
-                  key={account.id}
-                  onClick={() => onAccountClick(account)}
-                  className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
-                    selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div 
-                    className="text-[16px] font-medium leading-[25.2px]" 
-                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                <div key={account.id} className="box-border flex gap-[12px] h-[80px] items-center px-[8px] py-[4px]">
+                  <button
+                    onClick={() => onAccountClick(account)}
+                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[16px] transition-colors rounded-[8px] ${
+                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                    }`}
                   >
-                    {account.name}
-                  </div>
-                  <div 
-                    className="text-[16px] font-medium leading-[25.2px]" 
-                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                  >
-                    {formatMoney(account.balance)}
-                  </div>
-                </button>
+                    <div 
+                      className="text-[16px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                    >
+                      {account.name}
+                    </div>
+                    <div 
+                      className="text-[16px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                    >
+                      {formatMoney(account.balance)}
+                    </div>
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -257,35 +296,37 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Credit Accounts */}
         {accounts.filter((a) => a.group === 'credit').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
-            <button
-              onClick={() => toggleGroup('credit')}
-              className="flex items-center justify-between w-full h-[80px] px-[24px] hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex flex-col items-start gap-0">
-                <div 
-                  className="text-[16px] font-medium leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                >
-                  Credit
+            <div className="box-border flex gap-[12px] h-[80px] items-center p-[8px]">
+              <button
+                onClick={() => toggleGroup('credit')}
+                className="flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] px-[16px] py-[8px] hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex flex-col items-start gap-0">
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                  >
+                    Credit
+                  </div>
+                  <div 
+                    className="text-[14px] leading-[22px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
+                  >
+                    {accounts.filter((a) => a.group === 'credit').length} accounts
+                  </div>
                 </div>
-                <div 
-                  className="text-[14px] leading-[22px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
-                >
-                  {accounts.filter((a) => a.group === 'credit').length} accounts
+                <div className="flex items-center gap-[16px]">
+                  <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-[12px] py-[4px] rounded-[100px]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
+                    {formatMoney(accounts.filter((a) => a.group === 'credit').reduce((sum, a) => sum + a.balance, 0))}
+                  </div>
+                  <div className={`transform transition-transform ${expandedGroups.credit ? 'rotate-90' : '-rotate-90'}`}>
+                    <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
+                      <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
-                  {formatMoney(accounts.filter((a) => a.group === 'credit').reduce((sum, a) => sum + a.balance, 0))}
-                </div>
-                <div className={`transform transition-transform ${expandedGroups.credit ? 'rotate-90' : '-rotate-90'}`}>
-                  <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
-                    <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-            </button>
+              </button>
+            </div>
             
             <div 
               className="transition-all duration-300 ease-in-out overflow-hidden"
@@ -295,23 +336,24 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
               {accounts.filter((a) => a.group === 'credit').map((account) => (
-                <button
-                  key={account.id}
-                  onClick={() => onAccountClick(account)}
-                  className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
-                    selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div 
-                    className="text-[16px] font-medium leading-[25.2px]" 
-                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                <div key={account.id} className="box-border flex gap-[12px] h-[80px] items-center px-[8px] py-[4px]">
+                  <button
+                    onClick={() => onAccountClick(account)}
+                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[16px] transition-colors rounded-[8px] ${
+                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                    }`}
                   >
-                    {account.name}
-                  </div>
-                  <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
-                    {formatMoney(account.balance)}
-                  </div>
-                </button>
+                    <div 
+                      className="text-[16px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                    >
+                      {account.name}
+                    </div>
+                    <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-[12px] py-[4px] rounded-[100px]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
+                      {formatMoney(account.balance)}
+                    </div>
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -320,35 +362,37 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Loans Accounts */}
         {accounts.filter((a) => a.group === 'loans').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
-            <button
-              onClick={() => toggleGroup('loans')}
-              className="flex items-center justify-between w-full h-[80px] px-[24px] hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex flex-col items-start gap-0">
-                <div 
-                  className="text-[16px] font-medium leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                >
-                  Loans
+            <div className="box-border flex gap-[12px] h-[80px] items-center p-[8px]">
+              <button
+                onClick={() => toggleGroup('loans')}
+                className="flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] px-[16px] py-[8px] hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex flex-col items-start gap-0">
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                  >
+                    Loans
+                  </div>
+                  <div 
+                    className="text-[14px] leading-[22px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
+                  >
+                    {accounts.filter((a) => a.group === 'loans').length} accounts
+                  </div>
                 </div>
-                <div 
-                  className="text-[14px] leading-[22px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
-                >
-                  {accounts.filter((a) => a.group === 'loans').length} accounts
+                <div className="flex items-center gap-[16px]">
+                  <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-[12px] py-[4px] rounded-[100px]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
+                    {formatMoney(accounts.filter((a) => a.group === 'loans').reduce((sum, a) => sum + a.balance, 0))}
+                  </div>
+                  <div className={`transform transition-transform ${expandedGroups.loans ? 'rotate-90' : '-rotate-90'}`}>
+                    <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
+                      <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
-                  {formatMoney(accounts.filter((a) => a.group === 'loans').reduce((sum, a) => sum + a.balance, 0))}
-                </div>
-                <div className={`transform transition-transform ${expandedGroups.loans ? 'rotate-90' : '-rotate-90'}`}>
-                  <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
-                    <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-            </button>
+              </button>
+            </div>
             
             <div 
               className="transition-all duration-300 ease-in-out overflow-hidden"
@@ -358,23 +402,24 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
               {accounts.filter((a) => a.group === 'loans').map((account) => (
-                <button
-                  key={account.id}
-                  onClick={() => onAccountClick(account)}
-                  className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
-                    selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div 
-                    className="text-[16px] font-medium leading-[25.2px]" 
-                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                <div key={account.id} className="box-border flex gap-[12px] h-[80px] items-center px-[8px] py-[4px]">
+                  <button
+                    onClick={() => onAccountClick(account)}
+                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[16px] transition-colors rounded-[8px] ${
+                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                    }`}
                   >
-                    {account.name}
-                  </div>
-                  <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
-                    {formatMoney(account.balance)}
-                  </div>
-                </button>
+                    <div 
+                      className="text-[16px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                    >
+                      {account.name}
+                    </div>
+                    <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-[12px] py-[4px] rounded-[100px]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
+                      {formatMoney(account.balance)}
+                    </div>
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -383,38 +428,40 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Tracking Accounts */}
         {accounts.filter((a) => a.group === 'tracking').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
-            <button
-              onClick={() => toggleGroup('tracking')}
-              className="flex items-center justify-between w-full h-[80px] px-[24px] hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex flex-col items-start gap-0">
-                <div 
-                  className="text-[16px] font-medium leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                >
-                  Tracking
+            <div className="box-border flex gap-[12px] h-[80px] items-center p-[8px]">
+              <button
+                onClick={() => toggleGroup('tracking')}
+                className="flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] px-[16px] py-[8px] hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex flex-col items-start gap-0">
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                  >
+                    Tracking
+                  </div>
+                  <div 
+                    className="text-[14px] leading-[22px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
+                  >
+                    {accounts.filter((a) => a.group === 'tracking').length} accounts
+                  </div>
                 </div>
-                <div 
-                  className="text-[14px] leading-[22px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
-                >
-                  {accounts.filter((a) => a.group === 'tracking').length} accounts
+                <div className="flex items-center gap-[16px]">
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                  >
+                    {formatMoney(accounts.filter((a) => a.group === 'tracking').reduce((sum, a) => sum + a.balance, 0))}
+                  </div>
+                  <div className={`transform transition-transform ${expandedGroups.tracking ? 'rotate-90' : '-rotate-90'}`}>
+                    <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
+                      <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div 
-                  className="text-[16px] font-medium leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                >
-                  {formatMoney(accounts.filter((a) => a.group === 'tracking').reduce((sum, a) => sum + a.balance, 0))}
-                </div>
-                <div className={`transform transition-transform ${expandedGroups.tracking ? 'rotate-90' : '-rotate-90'}`}>
-                  <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
-                    <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-            </button>
+              </button>
+            </div>
             
             <div 
               className="transition-all duration-300 ease-in-out overflow-hidden"
@@ -424,44 +471,47 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
               {accounts.filter((a) => a.group === 'tracking').map((account) => (
-                <button
-                  key={account.id}
-                  onClick={() => onAccountClick(account)}
-                  className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
-                    selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div 
-                    className="text-[16px] font-medium leading-[25.2px]" 
-                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                <div key={account.id} className="box-border flex gap-[12px] h-[80px] items-center px-[8px] py-[4px]">
+                  <button
+                    onClick={() => onAccountClick(account)}
+                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[16px] transition-colors rounded-[8px] ${
+                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                    }`}
                   >
-                    {account.name}
-                  </div>
-                  <div 
-                    className="text-[16px] font-medium leading-[25.2px]" 
-                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                  >
-                    {formatMoney(account.balance)}
-                  </div>
-                </button>
+                    <div 
+                      className="text-[16px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                    >
+                      {account.name}
+                    </div>
+                    <div 
+                      className="text-[16px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                    >
+                      {formatMoney(account.balance)}
+                    </div>
+                  </button>
+                </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Add Account Button */}
-        <button
-          onClick={onAddAccount}
-          className="bg-[rgba(0,0,0,0.06)] rounded-[72px] px-[17px] py-[15px] min-h-[48px] flex items-center justify-center gap-2 hover:bg-[rgba(0,0,0,0.08)] transition-colors"
-        >
-          <Plus className="w-4 h-4" style={{ color: textColor }} />
-          <div 
-            className="text-[16px] font-medium leading-[18px]" 
-            style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+        {/* Add Account Button - Only show if there are accounts */}
+        {accounts.length > 0 && (
+          <button
+            onClick={onAddAccount}
+            className="bg-[rgba(0,0,0,0.06)] rounded-[72px] px-[17px] py-[15px] min-h-[48px] flex items-center justify-center gap-2 hover:bg-[rgba(0,0,0,0.08)] transition-colors"
           >
-            Add an account
-          </div>
-        </button>
+            <Plus className="w-4 h-4" style={{ color: textColor }} />
+            <div 
+              className="text-[16px] font-medium leading-[18px]" 
+              style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+            >
+              Add an account
+            </div>
+          </button>
+        )}
       </div>
 
       {/* Resize Handle */}
