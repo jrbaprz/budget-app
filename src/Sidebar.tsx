@@ -221,33 +221,36 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </button>
             
-            {expandedGroups.cash && (
-              <>
-                <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
-                {accounts.filter((a) => a.group === 'cash').map((account) => (
-                  <button
-                    key={account.id}
-                    onClick={() => onAccountClick(account)}
-                    className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
-                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
-                    }`}
+            <div 
+              className="transition-all duration-300 ease-in-out overflow-hidden"
+              style={{
+                maxHeight: expandedGroups.cash ? `${(accounts.filter((a) => a.group === 'cash').length * 81) + 1}px` : '0px',
+              }}
+            >
+              <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+              {accounts.filter((a) => a.group === 'cash').map((account) => (
+                <button
+                  key={account.id}
+                  onClick={() => onAccountClick(account)}
+                  className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
+                    selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                   >
-                    <div 
-                      className="text-[16px] font-medium leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                    >
-                      {account.name}
-                    </div>
-                    <div 
-                      className="text-[16px] font-medium leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                    >
-                      {formatMoney(account.balance)}
-                    </div>
-                  </button>
-                ))}
-              </>
-            )}
+                    {account.name}
+                  </div>
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                  >
+                    {formatMoney(account.balance)}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -284,30 +287,33 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </button>
             
-            {expandedGroups.credit && (
-              <>
-                <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
-                {accounts.filter((a) => a.group === 'credit').map((account) => (
-                  <button
-                    key={account.id}
-                    onClick={() => onAccountClick(account)}
-                    className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
-                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
-                    }`}
+            <div 
+              className="transition-all duration-300 ease-in-out overflow-hidden"
+              style={{
+                maxHeight: expandedGroups.credit ? `${(accounts.filter((a) => a.group === 'credit').length * 81) + 1}px` : '0px',
+              }}
+            >
+              <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+              {accounts.filter((a) => a.group === 'credit').map((account) => (
+                <button
+                  key={account.id}
+                  onClick={() => onAccountClick(account)}
+                  className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
+                    selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                   >
-                    <div 
-                      className="text-[16px] font-medium leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                    >
-                      {account.name}
-                    </div>
-                    <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
-                      {formatMoney(account.balance)}
-                    </div>
-                  </button>
-                ))}
-              </>
-            )}
+                    {account.name}
+                  </div>
+                  <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
+                    {formatMoney(account.balance)}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -344,30 +350,33 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </button>
             
-            {expandedGroups.loans && (
-              <>
-                <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
-                {accounts.filter((a) => a.group === 'loans').map((account) => (
-                  <button
-                    key={account.id}
-                    onClick={() => onAccountClick(account)}
-                    className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
-                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
-                    }`}
+            <div 
+              className="transition-all duration-300 ease-in-out overflow-hidden"
+              style={{
+                maxHeight: expandedGroups.loans ? `${(accounts.filter((a) => a.group === 'loans').length * 81) + 1}px` : '0px',
+              }}
+            >
+              <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+              {accounts.filter((a) => a.group === 'loans').map((account) => (
+                <button
+                  key={account.id}
+                  onClick={() => onAccountClick(account)}
+                  className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
+                    selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                   >
-                    <div 
-                      className="text-[16px] font-medium leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                    >
-                      {account.name}
-                    </div>
-                    <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
-                      {formatMoney(account.balance)}
-                    </div>
-                  </button>
-                ))}
-              </>
-            )}
+                    {account.name}
+                  </div>
+                  <div className="bg-[#e05f4d] text-white text-[16px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
+                    {formatMoney(account.balance)}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -407,33 +416,36 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </button>
             
-            {expandedGroups.tracking && (
-              <>
-                <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
-                {accounts.filter((a) => a.group === 'tracking').map((account) => (
-                  <button
-                    key={account.id}
-                    onClick={() => onAccountClick(account)}
-                    className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
-                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
-                    }`}
+            <div 
+              className="transition-all duration-300 ease-in-out overflow-hidden"
+              style={{
+                maxHeight: expandedGroups.tracking ? `${(accounts.filter((a) => a.group === 'tracking').length * 81) + 1}px` : '0px',
+              }}
+            >
+              <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+              {accounts.filter((a) => a.group === 'tracking').map((account) => (
+                <button
+                  key={account.id}
+                  onClick={() => onAccountClick(account)}
+                  className={`flex items-center justify-between w-full h-[80px] px-[24px] transition-colors ${
+                    selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                   >
-                    <div 
-                      className="text-[16px] font-medium leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                    >
-                      {account.name}
-                    </div>
-                    <div 
-                      className="text-[16px] font-medium leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
-                    >
-                      {formatMoney(account.balance)}
-                    </div>
-                  </button>
-                ))}
-              </>
-            )}
+                    {account.name}
+                  </div>
+                  <div 
+                    className="text-[16px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
+                  >
+                    {formatMoney(account.balance)}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
