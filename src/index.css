@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom font fallback for PP Mori */
+/* Custom font fallback for Futura PT */
 @layer base {
   * {
-    font-family: 'PP Mori', 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Futura PT', 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 }

@@ -1,28 +1,16 @@
-import React from 'react';
-import { ChevronDown, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus } from 'lucide-react';
 
-// SVG icon imports (inline for now, can be extracted later)
+// New icons matching Figma design
+const OverviewIcon = () => (
+  <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1 1H11M1 6.5H11M1 12H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
 const PlanIcon = () => (
-  <svg width="23" height="19" viewBox="0 0 23 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M2 2H21M2 9.5H21M2 17H21" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-  </svg>
-);
-
-const ReflectIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M2 18V6C2 3.79086 3.79086 2 6 2H14C16.2091 2 18 3.79086 18 6V18M2 18H18M2 18H0M18 18H20" stroke="currentColor" strokeWidth="2"/>
-  </svg>
-);
-
-const AllAccountsIcon = () => (
-  <svg width="21" height="18" viewBox="0 0 21 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M1 9H20M1 1H20M1 17H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-);
-
-const PlusIcon = () => (
-  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M5 0V10M0 5H10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+  <svg width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1 2C1 1.44772 1.44772 1 2 1H9C9.55228 1 10 1.44772 10 2V13M1 13H10M1 13H0M10 13H11" stroke="currentColor" strokeWidth="2"/>
   </svg>
 );
 
@@ -58,14 +46,27 @@ const Sidebar: React.FC<SidebarProps> = ({
   onBudgetMenuClick,
   formatMoney,
 }) => {
+  const [expandedGroups, setExpandedGroups] = useState<{[key: string]: boolean}>({
+    cash: true,
+    credit: true,
+    loans: true,
+    tracking: true,
+  });
+
+  const toggleGroup = (group: string) => {
+    setExpandedGroups(prev => ({ ...prev, [group]: !prev[group] }));
+  };
+
   const navItems = [
+    { key: 'Overview', label: 'Overview', icon: <OverviewIcon /> },
     { key: 'Plan', label: 'Plan', icon: <PlanIcon /> },
-    { key: 'Reflect', label: 'Reflect', icon: <ReflectIcon /> },
-    { key: 'AllAccounts', label: 'All accounts', icon: <AllAccountsIcon /> },
   ];
 
+  const textColor = '#32302f';
+  const borderColor = '#e4e2e1';
+
   return (
-    <div className="flex flex-col gap-[54px] w-[350px] h-full bg-[#fdfcfc] px-4 py-6">
+    <div className="flex flex-col gap-[32px] w-[280px] h-full bg-[#fdfcfc] px-4 py-6">
       {/* Header Section */}
       <div className="flex flex-col gap-4">
         {/* Budget Name Header */}
@@ -74,33 +75,52 @@ const Sidebar: React.FC<SidebarProps> = ({
           className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors"
         >
           <div className="flex flex-col gap-1 text-left">
-            <div className="text-[26px] font-semibold leading-none text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
+            <div 
+              className="text-[26px] font-semibold leading-[32px] tracking-[-0.39px]" 
+              style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+            >
               {budgetName}
             </div>
-            <div className="text-[16px] leading-none text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 400 }}>
+            <div 
+              className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+              style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
+            >
               {email}
             </div>
           </div>
-          <ChevronDown className="w-[13px] h-[8px] text-[#332f30]" />
+          <div className="transform rotate-90">
+            <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
+              <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
         </button>
 
         {/* Navigation Card */}
-        <div className="bg-white rounded-[16px] shadow-[0px_1px_8px_0px_rgba(0,0,0,0.1)] px-2 py-4 flex flex-col gap-2">
-          {navItems.map((item) => {
+        <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06),0px_2px_6px_0px_rgba(0,0,0,0.06)] overflow-hidden">
+          {navItems.map((item, index) => {
             const isActive = activeView === item.key && !selectedAccount;
             return (
-              <button
-                key={item.key}
-                onClick={() => onViewChange(item.key)}
-                className={`flex items-center gap-3 p-4 rounded-md transition-colors ${
-                  isActive ? 'bg-[#f6f6f6]' : 'hover:bg-gray-50'
-                }`}
-              >
-                <div className="w-[22px] h-[19px] text-[#332f30]">{item.icon}</div>
-                <div className="text-[16px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                  {item.label}
-                </div>
-              </button>
+              <React.Fragment key={item.key}>
+                <button
+                  onClick={() => onViewChange(item.key)}
+                  className={`flex items-center justify-between w-full h-[80px] px-6 transition-colors ${
+                    isActive ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div 
+                    className="text-[18px] font-semibold leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                  >
+                    {item.label}
+                  </div>
+                  <div className="w-[10px] h-[11px] text-[#32302f]">
+                    {item.icon}
+                  </div>
+                </button>
+                {index < navItems.length - 1 && (
+                  <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+                )}
+              </React.Fragment>
             );
           })}
         </div>
@@ -108,143 +128,275 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Accounts Section */}
       <div className="flex flex-col gap-4">
-        <div className="text-[20px] font-semibold leading-none text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
+        <div 
+          className="text-[26px] font-semibold leading-[32px] tracking-[-0.39px]" 
+          style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+        >
           Accounts
         </div>
 
         {/* Cash Accounts */}
         {accounts.filter((a) => a.group === 'cash').length > 0 && (
-          <div className="bg-white rounded-[16px] shadow-[0px_1px_8px_0px_rgba(0,0,0,0.1)] overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4">
-              <div className="text-[16px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                Cash
-              </div>
-              <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                {formatMoney(accounts.filter((a) => a.group === 'cash').reduce((sum, a) => sum + a.balance, 0))}
-              </div>
-            </div>
-            <div className="h-[1px] bg-gray-200" />
-            {accounts.filter((a) => a.group === 'cash').map((account, index, arr) => (
-              <React.Fragment key={account.id}>
-                <button
-                  onClick={() => onAccountClick(account)}
-                  className={`flex items-center justify-between w-full px-6 py-4 hover:bg-gray-50 transition-colors ${
-                    selectedAccount?.id === account.id ? 'bg-blue-50' : ''
-                  }`}
+          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06),0px_2px_6px_0px_rgba(0,0,0,0.06)] overflow-hidden">
+            <button
+              onClick={() => toggleGroup('cash')}
+              className="flex items-center justify-between w-full h-[80px] px-6 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex flex-col items-start gap-0">
+                <div 
+                  className="text-[18px] font-semibold leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
                 >
-                  <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                    {account.name}
-                  </div>
-                  <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                    {formatMoney(account.balance)}
-                  </div>
-                </button>
-                {index < arr.length - 1 && <div className="h-[1px] bg-gray-200" />}
-              </React.Fragment>
-            ))}
+                  Cash
+                </div>
+                <div 
+                  className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
+                >
+                  {accounts.filter((a) => a.group === 'cash').length} accounts
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div 
+                  className="text-[18px] font-semibold leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                >
+                  {formatMoney(accounts.filter((a) => a.group === 'cash').reduce((sum, a) => sum + a.balance, 0))}
+                </div>
+                <div className={`transform transition-transform ${expandedGroups.cash ? 'rotate-90' : '-rotate-90'}`}>
+                  <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
+                    <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </button>
+            
+            {expandedGroups.cash && (
+              <>
+                <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+                {accounts.filter((a) => a.group === 'cash').map((account) => (
+                  <button
+                    key={account.id}
+                    onClick={() => onAccountClick(account)}
+                    className={`flex items-center justify-between w-full h-[80px] px-6 transition-colors ${
+                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div 
+                      className="text-[18px] font-semibold leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                    >
+                      {account.name}
+                    </div>
+                    <div 
+                      className="text-[18px] font-semibold leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                    >
+                      {formatMoney(account.balance)}
+                    </div>
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         )}
 
         {/* Credit Accounts */}
         {accounts.filter((a) => a.group === 'credit').length > 0 && (
-          <div className="bg-white rounded-[16px] shadow-[0px_1px_8px_0px_rgba(0,0,0,0.1)] overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4">
-              <div className="text-[16px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                Credit
-              </div>
-              <div className="bg-[#e05f4d] text-white text-[14px] font-semibold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                {formatMoney(accounts.filter((a) => a.group === 'credit').reduce((sum, a) => sum + a.balance, 0))}
-              </div>
-            </div>
-            <div className="h-[1px] bg-gray-200" />
-            {accounts.filter((a) => a.group === 'credit').map((account) => (
-              <button
-                key={account.id}
-                onClick={() => onAccountClick(account)}
-                className={`flex items-center justify-between w-full px-6 py-4 hover:bg-gray-50 transition-colors ${
-                  selectedAccount?.id === account.id ? 'bg-blue-50' : ''
-                }`}
-              >
-                <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                  {account.name}
+          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06),0px_2px_6px_0px_rgba(0,0,0,0.06)] overflow-hidden">
+            <button
+              onClick={() => toggleGroup('credit')}
+              className="flex items-center justify-between w-full h-[80px] px-6 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex flex-col items-start gap-0">
+                <div 
+                  className="text-[18px] font-semibold leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                >
+                  Credit
                 </div>
-                <div className="bg-[#e05f4d] text-white text-[14px] font-semibold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                  {formatMoney(account.balance)}
+                <div 
+                  className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
+                >
+                  {accounts.filter((a) => a.group === 'credit').length} accounts
                 </div>
-              </button>
-            ))}
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="bg-[#e05f4d] text-white text-[18px] font-semibold leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                  {formatMoney(accounts.filter((a) => a.group === 'credit').reduce((sum, a) => sum + a.balance, 0))}
+                </div>
+                <div className={`transform transition-transform ${expandedGroups.credit ? 'rotate-90' : '-rotate-90'}`}>
+                  <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
+                    <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </button>
+            
+            {expandedGroups.credit && (
+              <>
+                <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+                {accounts.filter((a) => a.group === 'credit').map((account) => (
+                  <button
+                    key={account.id}
+                    onClick={() => onAccountClick(account)}
+                    className={`flex items-center justify-between w-full h-[80px] px-6 transition-colors ${
+                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div 
+                      className="text-[18px] font-semibold leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                    >
+                      {account.name}
+                    </div>
+                    <div className="bg-[#e05f4d] text-white text-[18px] font-semibold leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                      {formatMoney(account.balance)}
+                    </div>
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         )}
 
         {/* Loans Accounts */}
         {accounts.filter((a) => a.group === 'loans').length > 0 && (
-          <div className="bg-white rounded-[16px] shadow-[0px_1px_8px_0px_rgba(0,0,0,0.1)] overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4">
-              <div className="text-[16px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                Loans
-              </div>
-              <div className="bg-[#e05f4d] text-white text-[14px] font-semibold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                {formatMoney(accounts.filter((a) => a.group === 'loans').reduce((sum, a) => sum + a.balance, 0))}
-              </div>
-            </div>
-            <div className="h-[1px] bg-gray-200" />
-            {accounts.filter((a) => a.group === 'loans').map((account) => (
-              <button
-                key={account.id}
-                onClick={() => onAccountClick(account)}
-                className={`flex items-center justify-between w-full px-6 py-4 hover:bg-gray-50 transition-colors ${
-                  selectedAccount?.id === account.id ? 'bg-blue-50' : ''
-                }`}
-              >
-                <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                  {account.name}
+          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06),0px_2px_6px_0px_rgba(0,0,0,0.06)] overflow-hidden">
+            <button
+              onClick={() => toggleGroup('loans')}
+              className="flex items-center justify-between w-full h-[80px] px-6 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex flex-col items-start gap-0">
+                <div 
+                  className="text-[18px] font-semibold leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                >
+                  Loans
                 </div>
-                <div className="bg-[#e05f4d] text-white text-[14px] font-semibold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                  {formatMoney(account.balance)}
+                <div 
+                  className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
+                >
+                  {accounts.filter((a) => a.group === 'loans').length} accounts
                 </div>
-              </button>
-            ))}
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="bg-[#e05f4d] text-white text-[18px] font-semibold leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                  {formatMoney(accounts.filter((a) => a.group === 'loans').reduce((sum, a) => sum + a.balance, 0))}
+                </div>
+                <div className={`transform transition-transform ${expandedGroups.loans ? 'rotate-90' : '-rotate-90'}`}>
+                  <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
+                    <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </button>
+            
+            {expandedGroups.loans && (
+              <>
+                <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+                {accounts.filter((a) => a.group === 'loans').map((account) => (
+                  <button
+                    key={account.id}
+                    onClick={() => onAccountClick(account)}
+                    className={`flex items-center justify-between w-full h-[80px] px-6 transition-colors ${
+                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div 
+                      className="text-[18px] font-semibold leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                    >
+                      {account.name}
+                    </div>
+                    <div className="bg-[#e05f4d] text-white text-[18px] font-semibold leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                      {formatMoney(account.balance)}
+                    </div>
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         )}
 
         {/* Tracking Accounts */}
         {accounts.filter((a) => a.group === 'tracking').length > 0 && (
-          <div className="bg-white rounded-[16px] shadow-[0px_1px_8px_0px_rgba(0,0,0,0.1)] overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4">
-              <div className="text-[16px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                Tracking
-              </div>
-              <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                {formatMoney(accounts.filter((a) => a.group === 'tracking').reduce((sum, a) => sum + a.balance, 0))}
-              </div>
-            </div>
-            <div className="h-[1px] bg-gray-200" />
-            {accounts.filter((a) => a.group === 'tracking').map((account) => (
-              <button
-                key={account.id}
-                onClick={() => onAccountClick(account)}
-                className={`flex items-center justify-between w-full px-6 py-4 hover:bg-gray-50 transition-colors ${
-                  selectedAccount?.id === account.id ? 'bg-blue-50' : ''
-                }`}
-              >
-                <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                  {account.name}
+          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06),0px_2px_6px_0px_rgba(0,0,0,0.06)] overflow-hidden">
+            <button
+              onClick={() => toggleGroup('tracking')}
+              className="flex items-center justify-between w-full h-[80px] px-6 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex flex-col items-start gap-0">
+                <div 
+                  className="text-[18px] font-semibold leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                >
+                  Tracking
                 </div>
-                <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
-                  {formatMoney(account.balance)}
+                <div 
+                  className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
+                >
+                  {accounts.filter((a) => a.group === 'tracking').length} accounts
                 </div>
-              </button>
-            ))}
+              </div>
+              <div className="flex items-center gap-4">
+                <div 
+                  className="text-[18px] font-semibold leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                >
+                  {formatMoney(accounts.filter((a) => a.group === 'tracking').reduce((sum, a) => sum + a.balance, 0))}
+                </div>
+                <div className={`transform transition-transform ${expandedGroups.tracking ? 'rotate-90' : '-rotate-90'}`}>
+                  <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
+                    <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </button>
+            
+            {expandedGroups.tracking && (
+              <>
+                <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+                {accounts.filter((a) => a.group === 'tracking').map((account) => (
+                  <button
+                    key={account.id}
+                    onClick={() => onAccountClick(account)}
+                    className={`flex items-center justify-between w-full h-[80px] px-6 transition-colors ${
+                      selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div 
+                      className="text-[18px] font-semibold leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                    >
+                      {account.name}
+                    </div>
+                    <div 
+                      className="text-[18px] font-semibold leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                    >
+                      {formatMoney(account.balance)}
+                    </div>
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         )}
 
         {/* Add Account Button */}
         <button
           onClick={onAddAccount}
-          className="bg-[#f0eeef] rounded-full px-4 py-2 flex items-center justify-center gap-2 hover:bg-[#e8e6e7] transition-colors"
+          className="bg-[rgba(0,0,0,0.06)] rounded-[72px] px-[17px] py-[15px] min-h-[48px] flex items-center justify-center gap-2 hover:bg-[rgba(0,0,0,0.08)] transition-colors"
         >
-          <PlusIcon />
-          <div className="text-[14px] font-semibold leading-[16.8px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
+          <Plus className="w-4 h-4" style={{ color: textColor }} />
+          <div 
+            className="text-[18px] font-semibold leading-[18px]" 
+            style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+          >
             Add an account
           </div>
         </button>
