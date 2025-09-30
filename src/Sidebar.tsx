@@ -449,11 +449,18 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Resize Handle */}
       <div
         onMouseDown={handleMouseDown}
-        className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+        className="absolute top-0 bottom-0 w-3 cursor-col-resize"
         style={{
-          background: isResizing ? '#3B82F6' : 'transparent',
+          right: '-6px', // Position so handle is centered on the sidebar edge
         }}
-      />
+      >
+        <div 
+          className="absolute left-1/2 top-0 bottom-0 w-[2px] -translate-x-1/2 transition-colors"
+          style={{
+            background: isResizing ? '#3B82F6' : 'transparent',
+          }}
+        />
+      </div>
     </div>
   );
 };
