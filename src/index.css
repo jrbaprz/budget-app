@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom font fallback for PP Radio Grotesk */
+/* Custom font fallback for PP Mori */
 @layer base {
   * {
-    font-family: 'PP Radio Grotesk', 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'PP Mori', 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 }

@@ -74,10 +74,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors"
         >
           <div className="flex flex-col gap-1 text-left">
-            <div className="text-[26px] font-bold leading-none text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+            <div className="text-[26px] font-semibold leading-none text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
               {budgetName}
             </div>
-            <div className="text-[16px] font-light leading-none text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+            <div className="text-[16px] leading-none text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 400 }}>
               {email}
             </div>
           </div>
@@ -97,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 }`}
               >
                 <div className="w-[22px] h-[19px] text-[#332f30]">{item.icon}</div>
-                <div className="text-[18px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+                <div className="text-[16px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                   {item.label}
                 </div>
               </button>
@@ -108,7 +108,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Accounts Section */}
       <div className="flex flex-col gap-4">
-        <div className="text-[20px] font-bold leading-none text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+        <div className="text-[20px] font-semibold leading-none text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
           Accounts
         </div>
 
@@ -116,10 +116,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         {accounts.filter((a) => a.group === 'cash').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_1px_8px_0px_rgba(0,0,0,0.1)] overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4">
-              <div className="text-[18px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+              <div className="text-[16px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                 Cash
               </div>
-              <div className="text-[14px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+              <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                 {formatMoney(accounts.filter((a) => a.group === 'cash').reduce((sum, a) => sum + a.balance, 0))}
               </div>
             </div>
@@ -132,10 +132,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                     selectedAccount?.id === account.id ? 'bg-blue-50' : ''
                   }`}
                 >
-                  <div className="text-[14px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+                  <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                     {account.name}
                   </div>
-                  <div className="text-[14px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+                  <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                     {formatMoney(account.balance)}
                   </div>
                 </button>
@@ -149,10 +149,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         {accounts.filter((a) => a.group === 'credit').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_1px_8px_0px_rgba(0,0,0,0.1)] overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4">
-              <div className="text-[18px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+              <div className="text-[16px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                 Credit
               </div>
-              <div className="bg-[#e05f4d] text-white text-[14px] font-bold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+              <div className="bg-[#e05f4d] text-white text-[14px] font-semibold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                 {formatMoney(accounts.filter((a) => a.group === 'credit').reduce((sum, a) => sum + a.balance, 0))}
               </div>
             </div>
@@ -165,10 +165,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                   selectedAccount?.id === account.id ? 'bg-blue-50' : ''
                 }`}
               >
-                <div className="text-[14px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+                <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                   {account.name}
                 </div>
-                <div className="bg-[#e05f4d] text-white text-[14px] font-bold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+                <div className="bg-[#e05f4d] text-white text-[14px] font-semibold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                   {formatMoney(account.balance)}
                 </div>
               </button>
@@ -180,10 +180,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         {accounts.filter((a) => a.group === 'loans').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_1px_8px_0px_rgba(0,0,0,0.1)] overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4">
-              <div className="text-[18px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+              <div className="text-[16px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                 Loans
               </div>
-              <div className="bg-[#e05f4d] text-white text-[14px] font-bold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+              <div className="bg-[#e05f4d] text-white text-[14px] font-semibold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                 {formatMoney(accounts.filter((a) => a.group === 'loans').reduce((sum, a) => sum + a.balance, 0))}
               </div>
             </div>
@@ -196,10 +196,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                   selectedAccount?.id === account.id ? 'bg-blue-50' : ''
                 }`}
               >
-                <div className="text-[14px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+                <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                   {account.name}
                 </div>
-                <div className="bg-[#e05f4d] text-white text-[14px] font-bold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+                <div className="bg-[#e05f4d] text-white text-[14px] font-semibold leading-[19.2px] px-3 py-0.5 rounded-full" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                   {formatMoney(account.balance)}
                 </div>
               </button>
@@ -211,10 +211,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         {accounts.filter((a) => a.group === 'tracking').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_1px_8px_0px_rgba(0,0,0,0.1)] overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4">
-              <div className="text-[18px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+              <div className="text-[16px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                 Tracking
               </div>
-              <div className="text-[14px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+              <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                 {formatMoney(accounts.filter((a) => a.group === 'tracking').reduce((sum, a) => sum + a.balance, 0))}
               </div>
             </div>
@@ -227,10 +227,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                   selectedAccount?.id === account.id ? 'bg-blue-50' : ''
                 }`}
               >
-                <div className="text-[14px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+                <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                   {account.name}
                 </div>
-                <div className="text-[14px] font-bold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+                <div className="text-[14px] font-semibold leading-[19.2px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
                   {formatMoney(account.balance)}
                 </div>
               </button>
@@ -244,7 +244,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           className="bg-[#f0eeef] rounded-full px-4 py-2 flex items-center justify-center gap-2 hover:bg-[#e8e6e7] transition-colors"
         >
           <PlusIcon />
-          <div className="text-[14px] font-bold leading-[16.8px] text-[#332f30]" style={{ fontFamily: "'PP Radio Grotesk', sans-serif" }}>
+          <div className="text-[14px] font-semibold leading-[16.8px] text-[#332f30]" style={{ fontFamily: "'PP Mori', sans-serif", fontWeight: 600 }}>
             Add an account
           </div>
         </button>
