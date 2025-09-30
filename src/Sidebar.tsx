@@ -3,14 +3,14 @@ import { Plus } from 'lucide-react';
 
 // New icons matching Figma design
 const OverviewIcon = () => (
-  <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M1 1H11M1 6.5H11M1 12H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+  <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1 12.5H11M2.24977 9.78775V7.07549M6 9.78775V7.07549M9.75023 9.78775V7.07549M6 1.5L11 4.51422H1L6 1.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 const PlanIcon = () => (
-  <svg width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M1 2C1 1.44772 1.44772 1 2 1H9C9.55228 1 10 1.44772 10 2V13M1 13H10M1 13H0M10 13H11" stroke="currentColor" strokeWidth="2"/>
+  <svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6 7.27778C6.75776 7.27778 7.48449 6.97341 8.02031 6.43164C8.55612 5.88987 8.85714 5.15507 8.85714 4.38889C8.85714 3.62271 8.55612 2.88791 8.02031 2.34614C7.48449 1.80436 6.75776 1.5 6 1.5C5.24224 1.5 4.51551 1.80436 3.97969 2.34614C3.44388 2.88791 3.14286 3.62271 3.14286 4.38889C3.14286 5.15507 3.44388 5.88987 3.97969 6.43164C4.51551 6.97341 5.24224 7.27778 6 7.27778ZM1 13.0556C1 12.2894 1.30102 11.5546 1.83684 11.0128C2.37266 10.471 3.09938 10.1667 3.85714 10.1667H8.14286C8.90062 10.1667 9.62734 10.471 10.1632 11.0128C10.699 11.5546 11 12.2894 11 13.0556V13.7778C11 13.9693 10.9247 14.153 10.7908 14.2885C10.6568 14.4239 10.4752 14.5 10.2857 14.5H1.71429C1.52485 14.5 1.34316 14.4239 1.20921 14.2885C1.07526 14.153 1 13.9693 1 13.7778V13.0556Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
   </svg>
 );
 
