@@ -76,8 +76,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         >
           <div className="flex flex-col gap-1 text-left">
             <div 
-              className="text-[26px] font-semibold leading-[32px]" 
-              style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+              className="text-[26px] font-medium leading-[32px]" 
+              style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
             >
               {budgetName}
             </div>
@@ -108,8 +108,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                   }`}
                 >
                   <div 
-                    className="text-[18px] font-semibold leading-[25.2px]" 
-                    style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                    className="text-[18px] font-medium leading-[25.2px]" 
+                    style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                   >
                     {item.label}
                   </div>
@@ -129,8 +129,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Accounts Section */}
       <div className="flex flex-col gap-4">
         <div 
-          className="text-[26px] font-semibold leading-[32px]" 
-          style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+          className="text-[26px] font-medium leading-[32px]" 
+          style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
         >
           Accounts
         </div>
@@ -144,8 +144,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="flex flex-col items-start gap-0">
                 <div 
-                  className="text-[18px] font-semibold leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                  className="text-[18px] font-medium leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                 >
                   Cash
                 </div>
@@ -158,8 +158,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <div className="flex items-center gap-4">
                 <div 
-                  className="text-[18px] font-semibold leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                  className="text-[18px] font-medium leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                 >
                   {formatMoney(accounts.filter((a) => a.group === 'cash').reduce((sum, a) => sum + a.balance, 0))}
                 </div>
@@ -183,14 +183,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }`}
                   >
                     <div 
-                      className="text-[18px] font-semibold leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                      className="text-[18px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                     >
                       {account.name}
                     </div>
                     <div 
-                      className="text-[18px] font-semibold leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                      className="text-[18px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                     >
                       {formatMoney(account.balance)}
                     </div>
@@ -210,8 +210,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="flex flex-col items-start gap-0">
                 <div 
-                  className="text-[18px] font-semibold leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                  className="text-[18px] font-medium leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                 >
                   Credit
                 </div>
@@ -223,7 +223,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="bg-[#e05f4d] text-white text-[18px] font-semibold leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                <div className="bg-[#e05f4d] text-white text-[18px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
                   {formatMoney(accounts.filter((a) => a.group === 'credit').reduce((sum, a) => sum + a.balance, 0))}
                 </div>
                 <div className={`transform transition-transform ${expandedGroups.credit ? 'rotate-90' : '-rotate-90'}`}>
@@ -246,12 +246,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }`}
                   >
                     <div 
-                      className="text-[18px] font-semibold leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                      className="text-[18px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                     >
                       {account.name}
                     </div>
-                    <div className="bg-[#e05f4d] text-white text-[18px] font-semibold leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                    <div className="bg-[#e05f4d] text-white text-[18px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
                       {formatMoney(account.balance)}
                     </div>
                   </button>
@@ -270,8 +270,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="flex flex-col items-start gap-0">
                 <div 
-                  className="text-[18px] font-semibold leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                  className="text-[18px] font-medium leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                 >
                   Loans
                 </div>
@@ -283,7 +283,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="bg-[#e05f4d] text-white text-[18px] font-semibold leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                <div className="bg-[#e05f4d] text-white text-[18px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
                   {formatMoney(accounts.filter((a) => a.group === 'loans').reduce((sum, a) => sum + a.balance, 0))}
                 </div>
                 <div className={`transform transition-transform ${expandedGroups.loans ? 'rotate-90' : '-rotate-90'}`}>
@@ -306,12 +306,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }`}
                   >
                     <div 
-                      className="text-[18px] font-semibold leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                      className="text-[18px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                     >
                       {account.name}
                     </div>
-                    <div className="bg-[#e05f4d] text-white text-[18px] font-semibold leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                    <div className="bg-[#e05f4d] text-white text-[18px] font-medium leading-[19.2px] px-3 py-1 rounded-full" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
                       {formatMoney(account.balance)}
                     </div>
                   </button>
@@ -330,8 +330,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="flex flex-col items-start gap-0">
                 <div 
-                  className="text-[18px] font-semibold leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                  className="text-[18px] font-medium leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                 >
                   Tracking
                 </div>
@@ -344,8 +344,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <div className="flex items-center gap-4">
                 <div 
-                  className="text-[18px] font-semibold leading-[25.2px]" 
-                  style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                  className="text-[18px] font-medium leading-[25.2px]" 
+                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                 >
                   {formatMoney(accounts.filter((a) => a.group === 'tracking').reduce((sum, a) => sum + a.balance, 0))}
                 </div>
@@ -369,14 +369,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                     }`}
                   >
                     <div 
-                      className="text-[18px] font-semibold leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                      className="text-[18px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                     >
                       {account.name}
                     </div>
                     <div 
-                      className="text-[18px] font-semibold leading-[25.2px]" 
-                      style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+                      className="text-[18px] font-medium leading-[25.2px]" 
+                      style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                     >
                       {formatMoney(account.balance)}
                     </div>
@@ -394,8 +394,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         >
           <Plus className="w-4 h-4" style={{ color: textColor }} />
           <div 
-            className="text-[18px] font-semibold leading-[18px]" 
-            style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
+            className="text-[18px] font-medium leading-[18px]" 
+            style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
           >
             Add an account
           </div>
