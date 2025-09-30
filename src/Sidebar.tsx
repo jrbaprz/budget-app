@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 
 // New icons matching Figma design
@@ -52,10 +52,50 @@ const Sidebar: React.FC<SidebarProps> = ({
     loans: true,
     tracking: true,
   });
+  const [sidebarWidth, setSidebarWidth] = useState(250);
+  const [isResizing, setIsResizing] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const toggleGroup = (group: string) => {
     setExpandedGroups(prev => ({ ...prev, [group]: !prev[group] }));
   };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      
+      const newWidth = e.clientX;
+      // Enforce minimum width of 275px
+      if (newWidth >= 275) {
+        setSidebarWidth(newWidth);
+      } else {
+        setSidebarWidth(275);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing]);
 
   const navItems = [
     { key: 'Overview', label: 'Overview', icon: <OverviewIcon /> },
@@ -66,7 +106,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   const borderColor = '#e4e2e1';
 
   return (
-    <div className="flex flex-col gap-[32px] w-[250px] h-full bg-[#fdfcfc] px-4 py-6">
+    <div 
+      ref={sidebarRef}
+      className="relative flex flex-col gap-[32px] h-full bg-[#fdfcfc] px-4 py-6"
+      style={{ width: `${sidebarWidth}px` }}
+    >
       {/* Header Section */}
       <div className="flex flex-col gap-4">
         {/* Budget Name Header */}
@@ -401,6 +445,15 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </button>
       </div>
+
+      {/* Resize Handle */}
+      <div
+        onMouseDown={handleMouseDown}
+        className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors"
+        style={{
+          background: isResizing ? '#3B82F6' : 'transparent',
+        }}
+      />
     </div>
   );
 };
