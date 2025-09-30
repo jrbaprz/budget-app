@@ -70,6 +70,7 @@ const App = () => {
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [allCategoriesSelected, setAllCategoriesSelected] = useState(false);
   const [focusedCategory, setFocusedCategory] = useState(null);
+  const [allGroupsCollapsed, setAllGroupsCollapsed] = useState(false);
   // Budget selection/creation (Pre-Budget screen)
   const [budgetName, setBudgetName] = useState('Budget');
   const [showCreateBudget, setShowCreateBudget] = useState(false);
@@ -241,10 +242,8 @@ const App = () => {
       selected: false,
       categories: [
         { id: 1, name: 'Rent/Mortgage', assigned: 0, selected: false },
-        { id: 2, name: 'Electric', assigned: 0, selected: false },
-        { id: 3, name: 'Water', assigned: 0, selected: false },
-        { id: 4, name: 'Internet', assigned: 0, selected: false },
-        { id: 5, name: 'Cellphone', assigned: 0, selected: false }
+        { id: 2, name: 'Internet', assigned: 0, selected: false },
+        { id: 3, name: 'Phone', assigned: 0, selected: false }
       ]
     },
     {
@@ -420,6 +419,15 @@ const App = () => {
     })));
   };
 
+  const toggleAllGroups = () => {
+    const newCollapsed = !allGroupsCollapsed;
+    setAllGroupsCollapsed(newCollapsed);
+    setCategoryGroups(groups => groups.map(group => ({
+      ...group,
+      collapsed: newCollapsed
+    })));
+  };
+
   const updateCategoryAssignment = (groupId, categoryId, value) => {
     const numValue = parseFloat(value) || 0;
     setCategoryGroups(groups => groups.map(group =>
@@ -511,7 +519,7 @@ const App = () => {
   };
 
   return (
-    <>
+    <React.Fragment>
       {activeView === 'PreBudget' && (
         <div className="min-h-screen" style={{backgroundColor: '#FDFCFC'}}>
           <div className="max-w-6xl mx-auto px-6 py-10">
@@ -664,13 +672,13 @@ const App = () => {
       )}
 
       {activeView !== 'PreBudget' && (
-        <div className="h-screen flex justify-center" style={{backgroundColor: '#FDFCFC'}} onClick={() => { /* close popovers when clicking main content */ setShowBudgetMenu(false); setOpenPlanOpen(false); }}>
-          <div className="w-full max-w-[1800px] flex px-[5vw]">
-      {/* Left Sidebar - New Design */}
-      <div className="relative">
+        <div className="min-h-screen flex justify-center overflow-hidden" style={{backgroundColor: '#FDFCFC'}}>
+          <div className="w-full h-screen flex gap-[12px] px-[32px] py-0" style={{ boxSizing: 'border-box' }}>
+      {/* Left Sidebar - Fixed */}
+      <div className="relative h-screen overflow-y-auto shrink-0 z-50" onClick={(e) => e.stopPropagation()}>
         <Sidebar
           budgetName={budgetName}
-          email="perezcipolab@gmail.com"
+          email="jr@studiojrba.com"
           activeView={activeView}
           accounts={accounts}
           selectedAccount={selectedAccount}
@@ -679,209 +687,229 @@ const App = () => {
           onAddAccount={() => { setAddAccountStep('form'); setShowAddAccount(true); }}
           onBudgetMenuClick={() => setShowBudgetMenu(v => !v)}
           formatMoney={formatMoney}
+          showBudgetMenu={showBudgetMenu}
+          plans={plans}
+          onNewPlanClick={() => { setShowCreateBudget(true); setShowBudgetMenu(false); }}
+          onOpenPlan={(planId) => openPlan(planId)}
+          onViewAllPlans={() => { setShowBudgetMenu(false); setActiveView('PreBudget'); setOpenPlanOpen(false); }}
         />
-        
-        {/* Budget Menu Overlay */}
-        {showBudgetMenu && (
-          <div ref={budgetMenuRef} className="absolute left-4 top-20 bg-white text-gray-900 rounded-xl shadow-xl border w-72 z-20">
-            <div className="py-2">
-              <button
-                onClick={() => { setShowCreateBudget(true); setShowBudgetMenu(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left transition-colors"
-              >
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100">
-                  <Plus className="w-4 h-4 text-blue-600" />
-                </span>
-                <span className="font-medium text-gray-900">New Plan</span>
-              </button>
-
-              <div
-                className="relative"
-                onMouseEnter={() => setOpenPlanOpen(true)}
-                onMouseLeave={() => setOpenPlanOpen(false)}
-              >
-                <div
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => setOpenPlanOpen(v => !v)}
-                >
-                  <div className="flex items-center gap-3">
-                    <Folder className="w-5 h-5 text-gray-600" />
-                    <span className="font-medium">Open Plan</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
-                </div>
-                {openPlanOpen && (
-                  <div className="absolute left-full top-0 ml-2 bg-white rounded-lg shadow-xl w-64 z-30">
-                    <div className="px-4 py-2 text-xs font-semibold text-gray-500">Recent Plans</div>
-                    <div className="py-1 max-h-60 overflow-auto">
-                      {plans.length === 0 ? (
-                        <div className="px-4 py-2 text-sm text-gray-500">No plans yet</div>
-                      ) : (
-                        plans.slice(0, 6).map((p) => (
-                          <button
-                            key={p.id}
-                            onClick={() => openPlan(p.id)}
-                            className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
-                          >
-                            <FileText className="w-5 h-5 text-gray-600" />
-                            <span className="text-sm">{p.name}</span>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                    <div className="border-t my-1" />
-                    <button
-                      onClick={() => { setShowBudgetMenu(false); setActiveView('PreBudget'); setOpenPlanOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 text-left"
-                    >
-                      <Folder className="w-5 h-5 text-gray-600" />
-                      <span className="font-medium">View All Plans</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Main Content Area - Plan View */}
+      {/* Main Content Area - Plan View - Flexible Width */}
       {activeView === 'Plan' && !selectedAccount && (
-        <div className="flex-1 flex flex-col">
-          <div className="bg-white border-b px-6 py-4">
-            <div className="flex itemscenter justify-between">
-              <div className="flex items-center gap-4">
-                <button onClick={() => changeMonth(-1)} className="p-1 hover:bg-gray-100 rounded">
-                  <ChevronLeft className="w-5 h-5" />
+        <React.Fragment>
+        <div className="flex-1 flex flex-col gap-0 pb-[45px] min-w-0 h-screen overflow-y-auto scrollbar-overlay">
+          {/* Header - Sticky */}
+          <div className="sticky top-0 z-20 bg-[#FDFCFC] flex items-center justify-between overflow-clip py-[16px] px-[8px]">
+            <div className="flex gap-[16px] items-center">
+              <div className="flex gap-[8px] items-center">
+                <button onClick={() => changeMonth(-1)} className="w-[20px] h-[20px] flex items-center justify-center">
+                  <ChevronLeft className="w-[10px] h-[10px] text-[#332f30]" strokeWidth={1.5} />
                 </button>
-                <h1 className="text-xl font-semibold">{formatMonth(currentMonth)}</h1>
-                <button onClick={() => changeMonth(1)} className="p-1 hover:bg-gray-100 rounded">
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-                <button className="text-sm text-gray-500 hover:text-gray-700">Enter a note...</button>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className={`px-4 py-2 rounded-lg font-medium ${
-                  readyToAssign === 0 ? 'bg-green-500 text-white' :
-                  readyToAssign > 0 ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-red-100 text-red-800'
-                }`}>
-                  <div className="text-2xl font-bold">{formatMoney(Math.abs(readyToAssign))}</div>
-                  <div className="text-xs">All Money Assigned</div>
+                <div className="px-[8px]">
+                  <div className="text-[20px] font-semibold leading-[15.75px] text-[#332f30]" style={{ fontFamily: "'PP Mori', 'Futura PT', sans-serif" }}>
+                    {formatMonth(currentMonth)}
+                  </div>
                 </div>
-                <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2">
-                  Assign
-                  <ChevronDown className="w-4 h-4" />
+                <button onClick={() => changeMonth(1)} className="w-[20px] h-[20px] flex items-center justify-center">
+                  <ChevronRight className="w-[10px] h-[10px] text-[#332f30]" strokeWidth={1.5} />
                 </button>
+              </div>
+              <div className="text-[14.9px] leading-[22px] text-[rgba(50,48,47,0.5)]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                Enter a note...
               </div>
             </div>
-
-            <div className="flex gap-4 mt-4">
-              {['All', 'Underfunded', 'Overfunded', 'Money Available', 'Snoozed'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setFilterTab(tab)}
-                  className={`px-3 py-1 text-sm rounded-full transition-colors ${
-                    filterTab === tab ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-              <button className="p-1 hover:bg-gray-100 rounded">
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
+            <div className="bg-[#ecf2f6] rounded-[16px] p-[16px] flex gap-[24px] items-center">
+              <div className="flex flex-col">
+                <div className="text-[18px] font-semibold leading-[25.2px] text-[#696763]" style={{ fontFamily: "'PP Mori', 'Futura PT', sans-serif" }}>
+                  {formatMoney(Math.abs(readyToAssign))}
+                </div>
+                <div className="text-[12px] leading-[16.8px] text-[#696763]" style={{ fontFamily: "'PP Mori', 'Futura PT', sans-serif" }}>
+                  All Money Assigned
+                </div>
+              </div>
+              <div className="w-[20px] h-[20px]">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="10" cy="10" r="9" stroke="#696763" strokeWidth="1.5" fill="none"/>
+                  <path d="M13.5 9L10 12.5L6.5 9" stroke="#696763" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto">
-            <table className="w-full min-w-[900px]" style={{ tableLayout: 'fixed' }}>
-              <colgroup>
-                <col style={{ width: '32px' }} />
-                <col style={{ width: '32px' }} />
-                <col />
-                <col style={{ width: '150px' }} />
-                <col style={{ width: '150px' }} />
-                <col style={{ width: '180px' }} />
-              </colgroup>
-              <thead className="border-b text-xs font-medium text-gray-500 uppercase sticky top-0" style={{backgroundColor: '#FDFCFC'}}>
-                <tr>
-                  <th className="px-2 py-3">
-                    <ChevronDown className="w-4 h-4 mx-auto" />
-                  </th>
-                  <th className="px-2 py-3">
-                    <input 
-                      type="checkbox" 
-                      className="rounded" 
-                      checked={allCategoriesSelected}
-                      onChange={toggleAllCategories}
-                    />
-                  </th>
-                  <th className="text-left px-4 py-3">Category</th>
-                  <th className="text-right px-4 py-3">Assigned</th>
-                  <th className="text-right px-4 py-3">Activity</th>
-                  <th className="text-right px-4 py-3">Available</th>
-                </tr>
-              </thead>
+          {/* Category Card */}
+          <div className="flex gap-[10px] items-center p-[8px] w-full">
+            <div className="flex-1 bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] flex flex-col overflow-x-auto min-w-0">
+            {/* Toolbar Row */}
+            <div className="flex gap-[16px] items-center px-[24px] py-[8px] bg-white">
+              <div className="flex gap-[12px] items-center py-[4px]">
+                <Plus className="w-[10px] h-[10px] text-[#332f30]" strokeWidth={2} />
+                <div className="text-[14px] leading-[16.8px] text-[#332f30]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                  Category Group
+                </div>
+              </div>
+              <div className="flex gap-[12px] items-center py-[4px]">
+                <div className="flex gap-[12px] items-center justify-center px-[8px] py-[4px] rounded-[8px]">
+                  <RotateCcw className="w-[12px] h-[12px] text-[#332f30]" strokeWidth={2} />
+                  <div className="text-[14px] leading-[16.8px] text-[#332f30]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                    Undo
+                  </div>
+                </div>
+                <div className="flex gap-[12px] items-center justify-center px-[8px] py-[4px] rounded-[8px]">
+                  <RotateCw className="w-[12px] h-[12px] text-[#332f30]" strokeWidth={2} />
+                  <div className="text-[14px] leading-[16.8px] text-[#332f30]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                    Redo
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-[12px] items-center py-[4px]">
+                <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 6H12M12 6L7 1M12 6L7 11" stroke="#332f30" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <div className="text-[14px] leading-[16.8px] text-[#332f30]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                  Recent Moves
+                </div>
+              </div>
+            </div>
+            <div className="h-[1px] bg-[#e5e7eb] w-full"></div>
 
-              <tbody>
-                {categoryGroups.map(group => {
-                  const groupAssigned = group.categories.reduce((sum, cat) => sum + cat.assigned, 0);
-                  const groupActivity = group.categories.reduce((sum, cat) => sum + calculateCategoryActivity(cat.name), 0);
-                  const groupAvailable = groupAssigned - groupActivity;
+            {/* Table Header */}
+            <div className="flex gap-[12px] h-[80px] items-center p-[8px]">
+              <div className="flex-1 flex items-center justify-between h-full p-[16px] rounded-[8px]">
+                <div className="flex gap-[8px] items-center">
+                  <div className="flex gap-[12px] items-center justify-end w-[35px]">
+                    <button
+                      onClick={toggleAllGroups}
+                      className="flex items-center justify-center cursor-pointer"
+                      style={{ transform: allGroupsCollapsed ? 'rotate(270deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                    >
+                      <svg width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1L3 4L1 7" stroke="#332f30" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    <div className="w-[13px] h-[13px] bg-white rounded-[3px] border border-[#acaaa5] flex items-center justify-center">
+                      <input 
+                        type="checkbox" 
+                        className="w-[13px] h-[13px] rounded-[3px] border-[#acaaa5] cursor-pointer"
+                        checked={allCategoriesSelected}
+                        onChange={toggleAllCategories}
+                        style={{ margin: 0, padding: 0 }}
+                      />
+                    </div>
+                  </div>
+                  <div className="text-[16px] leading-[25.2px] text-[#32302f]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                    Category
+                  </div>
+                </div>
+                <div className="flex gap-[110px] items-center h-full">
+                  <div className="flex items-center justify-end w-[75px]">
+                    <div className="text-[14px] leading-[14.4px] text-[#332f30] text-right" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                      Assigned
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end w-[75px]">
+                    <div className="text-[14px] leading-[14.4px] text-[#332f30] text-right" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                      Activity
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end w-[75px]">
+                    <div className="text-[14px] leading-[14.4px] text-[#332f30] text-right font-medium" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                      Available
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                  return (
-                    <React.Fragment key={group.id}>
-                      {/* Group Header Row */}
-                      <tr className="border-b" style={{ backgroundColor: '#F8F6F2' }} onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = '#F0EDE6'} onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = '#F8F6F2'}>
-                        <td className="px-2 py-3">
+            <div className="h-[1px] bg-[#e5e7eb] w-full"></div>
+
+            {/* Categories */}
+            {categoryGroups.map(group => {
+              const groupAssigned = group.categories.reduce((sum, cat) => sum + cat.assigned, 0);
+              const groupActivity = group.categories.reduce((sum, cat) => sum + calculateCategoryActivity(cat.name), 0);
+              const groupAvailable = groupAssigned - groupActivity;
+
+              return (
+                <React.Fragment key={group.id}>
+                  {/* Group Header Row */}
+                  <div className="flex gap-[12px] h-[80px] items-center p-[8px]">
+                    <div className="flex-1 flex items-center justify-between h-full p-[16px] rounded-[8px]">
+                      <div className="flex gap-[8px] items-center">
+                        <div className="flex gap-[12px] items-center justify-end w-[35px]">
                           <button
                             onClick={() => toggleGroup(group.id)}
-                            className="w-full flex items-center justify-center"
+                            className="flex items-center justify-center cursor-pointer"
+                            style={{ transform: group.collapsed ? 'rotate(270deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
                           >
-                            {group.collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            <svg width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M1 1L3 4L1 7" stroke="#332f30" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
                           </button>
-                        </td>
-                        <td className="px-2 py-3">
-                          <input 
-                            type="checkbox" 
-                            className="rounded"
-                            checked={group.selected}
-                            onChange={() => toggleGroupSelection(group.id)}
-                          />
-                        </td>
-                        <td className="py-3 font-medium text-sm" style={{ paddingLeft: '16px' }}>{group.name}</td>
-                        <td style={cellStyle.assigned}>{formatMoney(groupAssigned)}</td>
-                        <td style={cellStyle.activity}>{formatMoney(groupActivity)}</td>
-                        <td style={cellStyle.available}>{formatMoney(groupAvailable)}</td>
-                      </tr>
+                          <div className="w-[13px] h-[13px] bg-white rounded-[3px] border border-[#acaaa5] flex items-center justify-center">
+                            <input 
+                              type="checkbox" 
+                              className="w-[13px] h-[13px] rounded-[3px] border-[#acaaa5] cursor-pointer"
+                              checked={group.selected}
+                              onChange={() => toggleGroupSelection(group.id)}
+                              style={{ margin: 0, padding: 0 }}
+                            />
+                          </div>
+                        </div>
+                        <div className="text-[16px] leading-[25.2px] text-[#32302f] font-medium" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                          {group.name}
+                        </div>
+                      </div>
+                      <div className="flex gap-[110px] items-center h-full">
+                        <div className="flex items-end justify-center overflow-hidden w-[75px]">
+                          <div className="text-[14px] leading-[16px] text-[#332f30] text-center" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                            {formatMoney(groupAssigned)}
+                          </div>
+                        </div>
+                        <div className="flex items-end justify-center overflow-hidden w-[75px]">
+                          <div className="text-[14px] leading-[16px] text-[#332f30] text-center" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                            {formatMoney(groupActivity)}
+                          </div>
+                        </div>
+                        <div className="flex items-end justify-center overflow-hidden w-[75px]">
+                          <div className="text-[14px] leading-[16px] text-[#332f30] text-center" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                            {formatMoney(groupAvailable)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-                      {/* Category Rows */}
-                      {!group.collapsed && group.categories.map(category => {
-                        const activity = calculateCategoryActivity(category.name);
-                        const available = category.assigned - activity;
-                        const isOverspent = available < 0;
-                        const isCreditCard = category.name === 'Credit Card';
+                  <div className="h-[1px] bg-[#e5e7eb]"></div>
 
-                        return (
-                          <tr 
-                            key={category.id}
-                            className={`border-b ${category.selected ? 'bg-blue-50' : ''}`}
-                            style={category.selected ? {} : {backgroundColor: '#FDFCFC'}}
-                            onMouseEnter={(e) => { if (!category.selected) { ((e.target as HTMLElement).closest('tr') as HTMLElement).style.backgroundColor = '#F5F5F5'; } }}
-                            onMouseLeave={(e) => { if (!category.selected) { ((e.target as HTMLElement).closest('tr') as HTMLElement).style.backgroundColor = '#FDFCFC'; } }}
-                          >
-                            <td className="px-2 py-3"></td>
-                            <td className="px-2 py-3">
-                              <input 
-                                type="checkbox" 
-                                className="rounded"
-                                checked={category.selected}
-                                onChange={() => toggleCategorySelection(group.id, category.id)}
-                              />
-                            </td>
-                            <td className="py-3 text-sm" style={{ paddingLeft: '16px' }}>{category.name}</td>
-                            <td style={cellStyle.assigned}>
+                  {/* Category Rows */}
+                  {!group.collapsed && group.categories.map(category => {
+                    const activity = calculateCategoryActivity(category.name);
+                    const available = category.assigned - activity;
+
+                    return (
+                      <div key={category.id} className="flex gap-[12px] h-[80px] items-center p-[8px]">
+                        <div className={`flex-1 flex items-center justify-between h-full p-[16px] rounded-[8px] ${category.selected ? 'bg-neutral-100' : ''}`}>
+                          <div className="flex gap-[8px] items-center">
+                            <div className="flex gap-[12px] items-center justify-end w-[35px]">
+                              <div className="w-[13px] h-[13px] bg-white rounded-[3px] border border-[#acaaa5] flex items-center justify-center">
+                                <input 
+                                  type="checkbox" 
+                                  className="w-[13px] h-[13px] rounded-[3px] border-[#acaaa5] cursor-pointer"
+                                  checked={category.selected}
+                                  onChange={() => toggleCategorySelection(group.id, category.id)}
+                                  style={{ margin: 0, padding: 0 }}
+                                />
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-[8px] justify-center">
+                              <div className="text-[16px] leading-none text-[#32302f]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                                {category.name}
+                              </div>
+                              <div className="w-[416px] h-[4px] bg-[#f3eee2] rounded-[16px] shadow-[0px_0px_0px_1px_inset_#ece7da]"></div>
+                            </div>
+                          </div>
+                          <div className="flex gap-[110px] items-center h-full">
+                            <div className="flex items-end justify-center overflow-hidden w-[75px]">
                               {focusedCategory === category.id ? (
                                 <input
                                   type="text"
@@ -892,146 +920,183 @@ const App = () => {
                                   }}
                                   onFocus={() => setFocusedCategory(category.id)}
                                   onBlur={() => setFocusedCategory(null)}
-                                  className="w-full text-right px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  style={{ fontSize: '14px', fontWeight: '500' }}
+                                  className="w-full text-center px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-[14px] leading-[16px]"
+                                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}
                                   placeholder="$0.00"
                                 />
                               ) : (
                                 <div
                                   onClick={() => setFocusedCategory(category.id)}
-                                  className="cursor-text"
-                                  style={{ color: category.assigned ? 'inherit' : '#9CA3AF' }}
+                                  className="cursor-text text-[14px] leading-[16px] text-[#332f30] text-center"
+                                  style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}
                                 >
                                   {formatMoney(category.assigned || 0)}
                                 </div>
                               )}
-                            </td>
-                            <td style={cellStyle.activity}>{formatMoney(activity)}</td>
-                            <td style={cellStyle.available}>
-                              {isCreditCard ? (
-                                <div className="flex items-center justify-end gap-2">
-                                  <span style={{ color: isOverspent ? '#DC2626' : available > 0 ? '#16A34A' : '#4B5563' }}>
-                                    {formatMoney(available)}
-                                  </span>
-                                  <span className="bg-yellow-400 text-yellow-900 text-xs px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1 whitespace-nowrap">
-                                    <HelpCircle className="w-3 h-3" />
-                                    PAYMENT
-                                  </span>
-                                </div>
-                              ) : (
-                                <span style={{ color: isOverspent ? '#DC2626' : available > 0 ? '#16A34A' : '#4B5563' }}>
-                                  {formatMoney(available)}
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </React.Fragment>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Right Sidebar */}
-      {activeView === 'Plan' && !selectedAccount && (
-        <div className="w-80 bg-white border-l flex flex-col">
-          {/* Summary Section */}
-          <div className="p-4 border-b">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="text-sm font-medium">September's Summary</div>
-              <ChevronDown className="w-4 h-4" />
-            </div>
-            
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Left Over from Last Month</span>
-                <span>{formatMoney(0)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Assigned in September</span>
-                <span>{formatMoney(0)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Activity</span>
-                <span>{formatMoney(0)}</span>
-              </div>
-              <div className="flex justify-between font-medium">
-                <span className="text-gray-600">Available</span>
-                <span>{formatMoney(0)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Cost to Be Me Section */}
-          <div className="p-4 border-b">
-            <div className="text-sm font-medium mb-2">Cost to Be Me</div>
-            <div className="text-sm text-gray-600">September's Targets</div>
-            <div className="text-blue-600 text-sm mt-2 cursor-pointer hover:underline">
-              Enter your expected income
-            </div>
-          </div>
-
-          {/* Auto Assign Section */}
-          <div className="p-4 border-b">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">⚡ Auto Assign</span>
-              <ChevronDown className="w-4 h-4" />
-            </div>
-          </div>
-
-          {/* Stats Section */}
-          <div className="flex-1 p-4 space-y-4">
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-600 hover:underline cursor-pointer">Underfunded</span>
-                <span className="text-blue-600">{formatMoney(0)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-600 hover:underline cursor-pointer">Assigned Last Month</span>
-                <span className="text-blue-600">{formatMoney(0)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-600 hover:underline cursor-pointer">Spent Last Month</span>
-                <span className="text-blue-600">{formatMoney(0)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-600 hover:underline cursor-pointer">Average Assigned</span>
-                <span className="text-blue-600">{formatMoney(0)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-600 hover:underline cursor-pointer">Average Spent</span>
-                <span className="text-blue-600">{formatMoney(0)}</span>
-              </div>
-            </div>
-
-            <div className="border-t pt-4 space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-600 hover:underline cursor-pointer">Reset Available Amounts</span>
-                <span className="text-blue-600">{formatMoney(0)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-600 hover:underline cursor-pointer">Reset Assigned Amounts</span>
-                <span className="text-blue-600">{formatMoney(0)}</span>
-              </div>
-            </div>
-
-            <div className="border-t pt-4">
-              <div className="text-sm font-medium mb-2">Assigned in Future Months</div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">October</span>
-                <span>{formatMoney(0)}</span>
-              </div>
+                            </div>
+                            <div className="flex items-end justify-center overflow-hidden w-[75px]">
+                              <div className="text-[14px] leading-[16px] text-[#332f30] text-center" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                                {formatMoney(activity)}
+                              </div>
+                            </div>
+                            <div className="flex items-end justify-center overflow-hidden w-[75px]">
+                              <div className="text-[14px] leading-[16px] text-[#332f30] text-center" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                                {formatMoney(available)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            })}
             </div>
           </div>
         </div>
-      )}
 
+        {/* Right Sidebar - Fixed (Plan View Only) */}
+        <div className="flex flex-col gap-[16px] w-full max-w-[350px] shrink-0 h-screen overflow-y-auto">
+        <div className="bg-white rounded-[8px] flex flex-col">
+          <div className="p-[16px]">
+            <div className="flex items-center justify-between">
+              <div className="text-[14px] font-semibold leading-[21px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#191818' }}>
+                September's Summary
+              </div>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 1V11M6 11L1 6M6 11L11 6" stroke="#191818" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <div className="px-[16px] py-[16px] flex flex-col gap-[20px] border-t border-[rgba(0,0,0,0.1)]">
+            <div className="flex flex-col gap-[8px]">
+              <div className="flex items-center justify-between">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  Left Over from Last Month
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  Assigned in September
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  Activity
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-[8px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#191818' }}>
+                  Available
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-[8px] rounded-[6.4px]">
+              <div className="pt-[21px] pb-[16px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#191818' }}>
+                  Cost to Be Me
+                </div>
+              </div>
+              <div className="flex items-center justify-between pb-[8px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  September's Targets
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+              <div className="h-[1px] w-full bg-[rgba(0,0,0,0.1)]"></div>
+              <div className="flex items-center justify-between pt-[8px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  September's Spending
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+              <div className="h-[1px] w-full bg-[rgba(0,0,0,0.1)]"></div>
+              <div className="flex items-center justify-between pt-[8px] pb-[8px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#191818' }}>
+                  Difference
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+              <div className="h-[1px] w-full bg-[rgba(0,0,0,0.1)]"></div>
+
+              <div className="pt-[21px] pb-[16px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#191818' }}>
+                  Cash Flow
+                </div>
+              </div>
+              <div className="flex items-center justify-between pb-[8px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  Income for September
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+              <div className="h-[1px] w-full bg-[rgba(0,0,0,0.1)]"></div>
+              <div className="flex items-center justify-between pt-[8px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  Assigned in September
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+              <div className="h-[1px] w-full bg-[rgba(0,0,0,0.1)]"></div>
+              <div className="flex items-center justify-between pt-[8px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  Activity
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+              <div className="h-[1px] w-full bg-[rgba(0,0,0,0.1)]"></div>
+              <div className="flex items-center justify-between pt-[8px] pb-[8px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#191818' }}>
+                  Net Cash Flow
+                </div>
+                <div className="text-[14px] font-semibold leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  $0.00
+                </div>
+              </div>
+
+              <div className="h-[1px] w-full bg-[rgba(0,0,0,0.1)]"></div>
+
+              <div className="pt-[21px] pb-[16px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#191818' }}>
+                  Age of Money
+                </div>
+              </div>
+              <div className="flex flex-col gap-[8px] pb-[8px]">
+                <div className="text-[14px] font-medium leading-[16.8px]" style={{ fontFamily: "'Figtree', sans-serif", color: '#51504d' }}>
+                  Not enough information
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        </div>
+        </React.Fragment>
       )}
 
       {/* Add Account Modal */}
@@ -1142,7 +1207,7 @@ const App = () => {
                   Back
                 </button>
               ) : addAccountStep === 'success' ? (
-                <>
+                <React.Fragment>
                   <button
                     onClick={() => {
                       setNewAccount({ name: '', group: '', subtype: '', balance: '' });
@@ -1158,9 +1223,9 @@ const App = () => {
                   >
                     Done
                   </button>
-                </>
+                </React.Fragment>
               ) : (
-                <>
+                <React.Fragment>
                   <button
                     onClick={() => setShowAddAccount(false)}
                     className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
@@ -1174,7 +1239,7 @@ const App = () => {
                   >
                     Next
                   </button>
-                </>
+                </React.Fragment>
               )}
             </div>
           </div>
@@ -1257,7 +1322,10 @@ const App = () => {
           </div>
         </div>
       )}
-    </>
+          </div>
+        </div>
+      )}
+    </React.Fragment>
   );
 };
 

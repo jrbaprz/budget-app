@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Plus } from 'lucide-react';
 
 // New icons matching Figma design
@@ -21,6 +22,12 @@ interface Account {
   group: string;
 }
 
+interface Plan {
+  id: string;
+  name: string;
+  lastUsed: string;
+}
+
 interface SidebarProps {
   budgetName: string;
   email: string;
@@ -32,6 +39,11 @@ interface SidebarProps {
   onAddAccount: () => void;
   onBudgetMenuClick: () => void;
   formatMoney: (value: number) => string;
+  showBudgetMenu: boolean;
+  plans: Plan[];
+  onNewPlanClick: () => void;
+  onOpenPlan: (planId: string) => void;
+  onViewAllPlans: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -45,6 +57,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   onAddAccount,
   onBudgetMenuClick,
   formatMoney,
+  showBudgetMenu,
+  plans,
+  onNewPlanClick,
+  onOpenPlan,
+  onViewAllPlans,
 }) => {
   const [expandedGroups, setExpandedGroups] = useState<{[key: string]: boolean}>({
     cash: true,
@@ -54,13 +71,40 @@ const Sidebar: React.FC<SidebarProps> = ({
   });
   const [sidebarWidth, setSidebarWidth] = useState(275);
   const [isResizing, setIsResizing] = useState(false);
+  const [openPlanOpen, setOpenPlanOpen] = useState(false);
   const startXRef = useRef<number>(0);
   const startWidthRef = useRef<number>(275);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const budgetButtonRef = useRef<HTMLButtonElement>(null);
+  const budgetMenuRef = useRef<HTMLDivElement>(null);
+  const openPlanTriggerRef = useRef<HTMLDivElement>(null);
+  const [submenuPosition, setSubmenuPosition] = useState({ top: 0, left: 0 });
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const toggleGroup = (group: string) => {
     setExpandedGroups(prev => ({ ...prev, [group]: !prev[group] }));
   };
+
+  // Close budget menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (showBudgetMenu && 
+          budgetMenuRef.current && 
+          budgetButtonRef.current &&
+          !budgetMenuRef.current.contains(e.target as Node) &&
+          !budgetButtonRef.current.contains(e.target as Node)) {
+        onBudgetMenuClick(); // Toggle to close
+      }
+    };
+
+    if (showBudgetMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showBudgetMenu, onBudgetMenuClick]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -114,13 +158,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <div 
       ref={sidebarRef}
-      className="relative flex flex-col gap-[32px] h-full bg-[#fdfcfc] overflow-y-auto pt-[16px] px-[8px]"
+      className="relative flex flex-col gap-[32px] h-full bg-[#fdfcfc] overflow-y-auto overflow-x-visible pt-[16px] px-[8px]"
       style={{ width: `${sidebarWidth}px`, minWidth: '275px' }}
     >
       {/* Header Section */}
       <div className="flex flex-col gap-[16px]">
         {/* Budget Name Header */}
         <button
+          ref={budgetButtonRef}
           onClick={onBudgetMenuClick}
           className="flex items-center justify-between p-[8px] hover:bg-gray-50 rounded-lg transition-colors"
         >
@@ -144,6 +189,136 @@ const Sidebar: React.FC<SidebarProps> = ({
             </svg>
           </div>
         </button>
+
+        {/* Budget Menu Dropdown */}
+        <div 
+          ref={budgetMenuRef}
+          className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-visible transition-all duration-300 ease-in-out"
+          style={{
+            maxHeight: showBudgetMenu ? '500px' : '0px',
+            opacity: showBudgetMenu ? 1 : 0,
+            marginBottom: showBudgetMenu ? '0px' : '-16px',
+            pointerEvents: showBudgetMenu ? 'auto' : 'none',
+          }}
+        >
+          <div className="transition-all duration-300 overflow-visible rounded-[16px]">
+            <div className="p-[8px]">
+              <button
+                onClick={onNewPlanClick}
+                className="w-full flex items-center gap-3 px-[16px] py-[16px] hover:bg-gray-50 rounded-[8px] text-left transition-colors"
+              >
+                <span className="font-medium text-gray-900" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                  New Plan
+                </span>
+              </button>
+            </div>
+
+            <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+
+            <div className="p-[8px]">
+              <div
+                ref={openPlanTriggerRef}
+                className="relative w-full flex items-center justify-between px-[16px] py-[16px] hover:bg-gray-50 rounded-[8px] cursor-pointer transition-colors"
+                onMouseEnter={() => {
+                  console.log('Mouse entered Open Plan');
+                  // Clear any pending close timeout
+                  if (closeTimeoutRef.current) {
+                    clearTimeout(closeTimeoutRef.current);
+                    closeTimeoutRef.current = null;
+                  }
+                  if (openPlanTriggerRef.current) {
+                    const rect = openPlanTriggerRef.current.getBoundingClientRect();
+                    setSubmenuPosition({
+                      top: rect.top,
+                      left: rect.right + 8
+                    });
+                  }
+                  setOpenPlanOpen(true);
+                }}
+                onMouseLeave={() => {
+                  console.log('Mouse left Open Plan');
+                  // Delay closing to allow mouse to move into submenu
+                  closeTimeoutRef.current = setTimeout(() => {
+                    setOpenPlanOpen(false);
+                  }, 150);
+                }}
+                onClick={() => {
+                  console.log('Clicked Open Plan, current state:', openPlanOpen);
+                  setOpenPlanOpen(v => !v);
+                }}
+              >
+                <span className="font-medium" style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}>
+                  Open Plan
+                </span>
+                <div className="transform rotate-180">
+                  <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
+                    <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+              {openPlanOpen && ReactDOM.createPortal(
+                <div 
+                  className="fixed bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] w-64"
+                  style={{
+                    top: `${submenuPosition.top}px`,
+                    left: `${submenuPosition.left}px`,
+                    zIndex: 99999,
+                    animation: 'slideIn 0.2s ease-out',
+                  }}
+                  onMouseEnter={() => {
+                    // Clear any pending close timeout when entering submenu
+                    if (closeTimeoutRef.current) {
+                      clearTimeout(closeTimeoutRef.current);
+                      closeTimeoutRef.current = null;
+                    }
+                    setOpenPlanOpen(true);
+                  }}
+                  onMouseLeave={() => {
+                    // Close immediately when leaving submenu
+                    setOpenPlanOpen(false);
+                  }}
+                >
+                  <div className="px-4 py-3 border-b" style={{ borderColor: borderColor }}>
+                    <div className="text-xs font-medium text-gray-500" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                      Recent Plans
+                    </div>
+                  </div>
+                  <div className="p-[8px] max-h-60 overflow-auto">
+                    {plans.length === 0 ? (
+                      <div className="px-4 py-3 text-sm text-gray-500" style={{ fontFamily: "'Futura PT', sans-serif" }}>
+                        No plans yet
+                      </div>
+                    ) : (
+                      plans.slice(0, 6).map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => onOpenPlan(p.id)}
+                          className="w-full flex items-center px-[16px] py-[16px] hover:bg-gray-50 rounded-[8px] text-left transition-colors"
+                        >
+                          <span className="text-[16px] font-medium" style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}>
+                            {p.name}
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                  <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+                  <div className="p-[8px]">
+                    <button
+                      onClick={onViewAllPlans}
+                      className="w-full flex items-center px-[16px] py-[16px] hover:bg-gray-50 rounded-[8px] text-left transition-colors"
+                    >
+                      <span className="text-[16px] font-medium" style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}>
+                        View all plans
+                      </span>
+                    </button>
+                  </div>
+                </div>,
+                document.body
+              )}
+            </div>
+          </div>
+        </div>
 
       {/* Navigation Card */}
         <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">

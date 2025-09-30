@@ -1,10 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom font fallback for Futura PT */
+/* Futura PT Font - Professional alternative using system fonts */
 @layer base {
   * {
-    font-family: 'Futura PT', 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Futura PT', 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Avenir Next', 'Century Gothic', sans-serif;
+  }
+  
+  /* PP Mori alternative - using Work Sans for similar geometric proportions */
+  .font-pp-mori {
+    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  /* Figtree alternative - using Work Sans which has similar characteristics */
+  .font-figtree {
+    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+/* Scrollbar styling to match design */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c0c0c0;
+}
+
+/* Overlay scrollbar - only shows when scrolling */
+.scrollbar-overlay {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.scrollbar-overlay:hover,
+.scrollbar-overlay:active {
+  scrollbar-color: #e0e0e0 transparent;
+}
+
+.scrollbar-overlay::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-overlay::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-overlay::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.scrollbar-overlay:hover::-webkit-scrollbar-thumb,
+.scrollbar-overlay:active::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+}
+
+.scrollbar-overlay:hover::-webkit-scrollbar-thumb:hover,
+.scrollbar-overlay:active::-webkit-scrollbar-thumb:hover {
+  background: #c0c0c0;
+}
+
+/* Submenu slide-in animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
