@@ -665,7 +665,7 @@ const App = () => {
 
       {activeView !== 'PreBudget' && (
         <div className="h-screen flex justify-center" style={{backgroundColor: '#FDFCFC'}} onClick={() => { /* close popovers when clicking main content */ setShowBudgetMenu(false); setOpenPlanOpen(false); }}>
-          <div className="w-full max-w-[1600px] flex px-[5vw]">
+          <div className="w-full max-w-[1800px] flex px-[5vw]">
       {/* Left Sidebar - New Design */}
       <div className="relative">
         <Sidebar
