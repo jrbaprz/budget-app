@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, Plus, Target, TrendingUp, Building, Star, Link, FileText, RotateCcw, RotateCw, Check, MoreHorizontal, HelpCircle, Folder, Pencil, Trash2 } from 'lucide-react';
+import Sidebar from './Sidebar';
 
 // Account type groupings and subtype definitions
 const ACCOUNT_TYPE_GROUPS = {
@@ -222,11 +223,7 @@ const App = () => {
   }, []);
 
   // Account Data
-  const [accounts, setAccounts] = useState([
-    { id: 1, name: 'Chequing', balance: 500.00, group: 'cash', subtype: 'checking', clearedBalance: 500.00, unclearedBalance: 0 },
-    { id: 2, name: 'Savings', balance: 0.00, group: 'cash', subtype: 'savings', clearedBalance: 0.00, unclearedBalance: 0 },
-    { id: 3, name: 'Credit Card', balance: -100.00, group: 'credit', subtype: 'credit_card', clearedBalance: -100.00, unclearedBalance: 0 }
-  ] as any);
+  const [accounts, setAccounts] = useState([] as any);
 
   // Transaction Data
   const [transactions, setTransactions] = useState({
@@ -239,55 +236,59 @@ const App = () => {
   const [categoryGroups, setCategoryGroups] = useState([
     {
       id: 1,
-      name: 'Credit Card Payments',
-      collapsed: false,
-      selected: false,
-      categories: [{ id: 1, name: 'Credit Card', assigned: 0, selected: false }]
-    },
-    {
-      id: 2,
       name: 'Bills',
       collapsed: false,
       selected: false,
       categories: [
-        { id: 2, name: 'Rent/Mortgage', assigned: 0, selected: false },
-        { id: 3, name: 'Electric', assigned: 0, selected: false },
-        { id: 4, name: 'Water', assigned: 0, selected: false },
-        { id: 5, name: 'Internet', assigned: 0, selected: false },
-        { id: 6, name: 'Cellphone', assigned: 0, selected: false }
+        { id: 1, name: 'Rent/Mortgage', assigned: 0, selected: false },
+        { id: 2, name: 'Electric', assigned: 0, selected: false },
+        { id: 3, name: 'Water', assigned: 0, selected: false },
+        { id: 4, name: 'Internet', assigned: 0, selected: false },
+        { id: 5, name: 'Cellphone', assigned: 0, selected: false }
       ]
     },
     {
-      id: 3,
+      id: 2,
       name: 'Frequent',
       collapsed: false,
       selected: false,
       categories: [
-        { id: 7, name: 'Groceries', assigned: 0, selected: false },
-        { id: 8, name: 'Eating Out', assigned: 0, selected: false },
-        { id: 9, name: 'Transportation', assigned: 0, selected: false }
+        { id: 6, name: 'Groceries', assigned: 0, selected: false },
+        { id: 7, name: 'Eating Out', assigned: 0, selected: false },
+        { id: 8, name: 'Transportation', assigned: 0, selected: false }
       ]
     },
     {
-      id: 4,
+      id: 3,
       name: 'Non-Monthly',
       collapsed: false,
       selected: false,
       categories: [
-        { id: 10, name: 'Home Maintenance', assigned: 0, selected: false },
-        { id: 11, name: 'Auto Maintenance', assigned: 0, selected: false },
-        { id: 12, name: 'Gifts', assigned: 0, selected: false }
+        { id: 9, name: 'Home Maintenance', assigned: 0, selected: false },
+        { id: 10, name: 'Auto Maintenance', assigned: 0, selected: false },
+        { id: 11, name: 'Gifts', assigned: 0, selected: false }
       ]
     },
     {
-      id: 5,
+      id: 4,
       name: 'Goals',
       collapsed: false,
       selected: false,
       categories: [
-        { id: 13, name: 'Vacation', assigned: 0, selected: false },
-        { id: 14, name: 'Education', assigned: 0, selected: false },
-        { id: 15, name: 'Emergency Fund', assigned: 0, selected: false }
+        { id: 12, name: 'Vacation', assigned: 0, selected: false },
+        { id: 13, name: 'Education', assigned: 0, selected: false },
+        { id: 14, name: 'Home Improvement', assigned: 0, selected: false }
+      ]
+    },
+    {
+      id: 5,
+      name: 'Quality of Life',
+      collapsed: false,
+      selected: false,
+      categories: [
+        { id: 15, name: 'Hobbies', assigned: 0, selected: false },
+        { id: 16, name: 'Entertainment', assigned: 0, selected: false },
+        { id: 17, name: 'Health & Wellness', assigned: 0, selected: false }
       ]
     }
   ]);
@@ -492,24 +493,27 @@ const App = () => {
     available: { textAlign: 'right' as const, paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', fontSize: '14px', fontWeight: '500' }
   };
 
-  // Sidebar Styles
+  // Sidebar Styles - Modern Design
   const sidebarStyle = {
-    backgroundColor: '#1D1F58',
-    width: '256px'
+    backgroundColor: '#FFFFFF',
+    width: '280px',
+    borderRight: '1px solid #E5E7EB'
   };
 
   const sectionTitle = (label: string) => (
-    <span className="text-xs uppercase opacity-50 tracking-wider">{label}</span>
+    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</span>
   );
 
   const activeButtonStyle = {
-    backgroundColor: '#393B6B'
+    backgroundColor: '#EFF6FF',
+    borderColor: '#3B82F6',
+    color: '#1E40AF'
   };
 
   return (
     <>
       {activeView === 'PreBudget' && (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen" style={{backgroundColor: '#FDFCFC'}}>
           <div className="max-w-6xl mx-auto px-6 py-10">
             <h1 className="text-2xl font-semibold mb-6">Your Plans</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -563,13 +567,10 @@ const App = () => {
           {/* Create Plan Modal */}
           {showCreateBudget && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={(e) => { if (e.target === e.currentTarget) { setShowCreateBudget(false); } }}>
-              <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden">
+              <div className="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden">
                 {/* Header */}
-                <div className="px-6 py-4 border-b flex items-center justify-between">
+                <div className="px-6 py-4 border-b">
                   <h2 className="text-2xl font-semibold">New Plan</h2>
-                  <button className="text-sm text-blue-600 hover:underline flex items-center gap-1">
-                    Migrate a YNAB 4 Plan <ChevronRight className="w-4 h-4" />
-                  </button>
                 </div>
 
                 {/* Body */}
@@ -641,7 +642,7 @@ const App = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t bg-gray-50 flex gap-3 justify-end">
+                <div className="px-6 py-4 border-t flex gap-3 justify-end" style={{backgroundColor: '#FDFCFC'}}>
                   <button
                     onClick={() => { setShowCreateBudget(false); setNewBudgetName(''); }}
                     className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
@@ -663,232 +664,84 @@ const App = () => {
       )}
 
       {activeView !== 'PreBudget' && (
-        <div className="h-screen flex bg-gray-50" onClick={() => { /* close popovers when clicking main content */ setShowBudgetMenu(false); setOpenPlanOpen(false); }}>
-      {/* Left Sidebar */}
-      <div style={sidebarStyle} className="text-white flex flex-col">
-        <div className="p-4">
-          <div className="relative">
-            <button
-              ref={budgetMenuButtonRef}
-              onClick={() => setShowBudgetMenu(v => !v)}
-              className="w-full flex items-center justify-between mb-2"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white">
-                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-                  </svg>
-                </div>
-                <div>
-                  <div className="font-semibold text-lg">{budgetName}</div>
-                  <div className="text-xs opacity-75 text-left">perezcipolab@gmail.com</div>
-                </div>
-              </div>
-              <ChevronDown className="w-5 h-5 opacity-75" />
-            </button>
+        <div className="h-screen flex" style={{backgroundColor: '#FDFCFC'}} onClick={() => { /* close popovers when clicking main content */ setShowBudgetMenu(false); setOpenPlanOpen(false); }}>
+      {/* Left Sidebar - New Design */}
+      <div className="relative">
+        <Sidebar
+          budgetName={budgetName}
+          email="perezcipolab@gmail.com"
+          activeView={activeView}
+          accounts={accounts}
+          selectedAccount={selectedAccount}
+          onViewChange={(view) => { setActiveView(view); setSelectedAccount(null); }}
+          onAccountClick={handleAccountClick}
+          onAddAccount={() => { setAddAccountStep('form'); setShowAddAccount(true); }}
+          onBudgetMenuClick={() => setShowBudgetMenu(v => !v)}
+          formatMoney={formatMoney}
+        />
+        
+        {/* Budget Menu Overlay */}
+        {showBudgetMenu && (
+          <div ref={budgetMenuRef} className="absolute left-4 top-20 bg-white text-gray-900 rounded-xl shadow-xl border w-72 z-20">
+            <div className="py-2">
+              <button
+                onClick={() => { setShowCreateBudget(true); setShowBudgetMenu(false); }}
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left transition-colors"
+              >
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100">
+                  <Plus className="w-4 h-4 text-blue-600" />
+                </span>
+                <span className="font-medium text-gray-900">New Plan</span>
+              </button>
 
-            {showBudgetMenu && (
-              <div ref={budgetMenuRef} className="absolute left-0 top-full mt-2 bg-white text-gray-900 rounded-lg shadow-xl w-64 z-20">
-                <div className="py-2">
-                  <button
-                    onClick={() => { setShowCreateBudget(true); setShowBudgetMenu(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 text-left"
-                  >
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200">
-                      <Plus className="w-4 h-4" />
-                    </span>
-                    <span className="font-medium">New Plan</span>
-                  </button>
-
-                  <div
-                    className="relative"
-                    onMouseEnter={() => setOpenPlanOpen(true)}
-                    onMouseLeave={() => setOpenPlanOpen(false)}
-                  >
-                    <div
-                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => setOpenPlanOpen(v => !v)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Folder className="w-5 h-5 text-gray-600" />
-                        <span className="font-medium">Open Plan</span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-gray-400" />
-                    </div>
-                    {openPlanOpen && (
-                      <div className="absolute left-full top-0 ml-2 bg-white rounded-lg shadow-xl w-64 z-30">
-                        <div className="px-4 py-2 text-xs font-semibold text-gray-500">Recent Plans</div>
-                        <div className="py-1 max-h-60 overflow-auto">
-                          {plans.length === 0 ? (
-                            <div className="px-4 py-2 text-sm text-gray-500">No plans yet</div>
-                          ) : (
-                            plans.slice(0, 6).map((p) => (
-                              <button
-                                key={p.id}
-                                onClick={() => openPlan(p.id)}
-                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
-                              >
-                                <FileText className="w-5 h-5 text-gray-600" />
-                                <span className="text-sm">{p.name}</span>
-                              </button>
-                            ))
-                          )}
-                        </div>
-                        <div className="border-t my-1" />
-                        <button
-                          onClick={() => { setShowBudgetMenu(false); setActiveView('PreBudget'); setOpenPlanOpen(false); }}
-                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 text-left"
-                        >
-                          <Folder className="w-5 h-5 text-gray-600" />
-                          <span className="font-medium">View All Plans</span>
-                        </button>
-                      </div>
-                    )}
+              <div
+                className="relative"
+                onMouseEnter={() => setOpenPlanOpen(true)}
+                onMouseLeave={() => setOpenPlanOpen(false)}
+              >
+                <div
+                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => setOpenPlanOpen(v => !v)}
+                >
+                  <div className="flex items-center gap-3">
+                    <Folder className="w-5 h-5 text-gray-600" />
+                    <span className="font-medium">Open Plan</span>
                   </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
                 </div>
+                {openPlanOpen && (
+                  <div className="absolute left-full top-0 ml-2 bg-white rounded-lg shadow-xl w-64 z-30">
+                    <div className="px-4 py-2 text-xs font-semibold text-gray-500">Recent Plans</div>
+                    <div className="py-1 max-h-60 overflow-auto">
+                      {plans.length === 0 ? (
+                        <div className="px-4 py-2 text-sm text-gray-500">No plans yet</div>
+                      ) : (
+                        plans.slice(0, 6).map((p) => (
+                          <button
+                            key={p.id}
+                            onClick={() => openPlan(p.id)}
+                            className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
+                          >
+                            <FileText className="w-5 h-5 text-gray-600" />
+                            <span className="text-sm">{p.name}</span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                    <div className="border-t my-1" />
+                    <button
+                      onClick={() => { setShowBudgetMenu(false); setActiveView('PreBudget'); setOpenPlanOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 text-left"
+                    >
+                      <Folder className="w-5 h-5 text-gray-600" />
+                      <span className="font-medium">View All Plans</span>
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-
-          <nav className="space-y-1">
-            <button
-              onClick={() => { setActiveView('Plan'); setSelectedAccount(null); }}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors hover:bg-white/10"
-              style={activeView === 'Plan' && !selectedAccount ? activeButtonStyle : {}}
-            >
-              <Target className="w-5 h-5" />
-              <span className="font-medium">Plan</span>
-            </button>
-            <button
-              onClick={() => { setActiveView('Reflect'); setSelectedAccount(null); }}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors hover:bg-white/10"
-              style={activeView === 'Reflect' ? activeButtonStyle : {}}
-            >
-              <TrendingUp className="w-5 h-5" />
-              <span className="font-medium">Reflect</span>
-            </button>
-            <button
-              onClick={() => { setActiveView('AllAccounts'); setSelectedAccount(null); }}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors hover:bg-white/10"
-              style={activeView === 'AllAccounts' ? activeButtonStyle : {}}
-            >
-              <Building className="w-5 h-5" />
-              <span className="font-medium">All Accounts</span>
-            </button>
-          </nav>
-        </div>
-
-        <div className="flex-1 px-4 overflow-auto">
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-2">
-              {sectionTitle('Cash')}
-              <span className="text-sm font-medium text-right">
-                {formatMoney(accounts.filter((a: any) => a.group === 'cash').reduce((sum: number, a: any) => sum + a.balance, 0))}
-              </span>
-            </div>
-            <div className="space-y-1">
-              {accounts.filter((a: any) => a.group === 'cash').map((account: any) => (
-                <div
-                  key={account.id}
-                  onClick={() => handleAccountClick(account)}
-                  className="flex justify-between items-center py-2 px-3 rounded-lg cursor-pointer transition-colors hover:bg-white/10"
-                  style={selectedAccount?.id === account.id ? activeButtonStyle : {}}
-                >
-                  <span className="text-sm">{account.name}</span>
-                  <span className="text-sm font-medium text-right">{formatMoney(account.balance)}</span>
-
-                </div>
-              ))}
             </div>
           </div>
-
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-2">
-              {sectionTitle('Credit')}
-              <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
-                {formatMoney(-Math.abs(accounts.filter((a: any) => a.group === 'credit').reduce((sum: number, a: any) => sum + a.balance, 0)))}
-              </span>
-            </div>
-            <div className="space-y-1">
-              {accounts.filter((a: any) => a.group === 'credit').map((account: any) => (
-                <div
-                  key={account.id}
-                  onClick={() => handleAccountClick(account)}
-                  className="flex justify-between items-center py-2 px-3 rounded-lg cursor-pointer transition-colors hover:bg-white/10"
-                  style={selectedAccount?.id === account.id ? activeButtonStyle : {}}
-                >
-                  <span className="text-sm">{account.name}</span>
-                  <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
-                    {formatMoney(-Math.abs(account.balance))}
-                  </span>
-
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-2">
-              {sectionTitle('Loans')}
-              <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
-                {formatMoney(-Math.abs(accounts.filter((a: any) => a.group === 'loans').reduce((sum: number, a: any) => sum + a.balance, 0)))}
-              </span>
-            </div>
-            <div className="space-y-1">
-              {accounts.filter((a: any) => a.group === 'loans').map((account: any) => (
-                <div
-                  key={account.id}
-                  onClick={() => handleAccountClick(account)}
-                  className="flex justify-between items-center py-2 px-3 rounded-lg cursor-pointer transition-colors hover:bg-white/10"
-                  style={selectedAccount?.id === account.id ? activeButtonStyle : {}}
-                >
-                  <span className="text-sm">{account.name}</span>
-                  <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-right">
-                    -${Math.abs(account.balance).toFixed(2)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-2">
-              {sectionTitle('Tracking')}
-              <span className="text-sm font-medium text-right">
-                {formatMoney(accounts.filter((a: any) => a.group === 'tracking').reduce((sum: number, a: any) => sum + a.balance, 0))}
-              </span>
-            </div>
-            <div className="space-y-1">
-              {accounts.filter((a: any) => a.group === 'tracking').map((account: any) => (
-                <div
-                  key={account.id}
-                  onClick={() => handleAccountClick(account)}
-                  className="flex justify-between items-center py-2 px-3 rounded-lg cursor-pointer transition-colors hover:bg-white/10"
-                  style={selectedAccount?.id === account.id ? activeButtonStyle : {}}
-                >
-                  <span className="text-sm">{account.name}</span>
-                  <span className="text-sm font-medium text-right">${account.balance.toFixed(2)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <button
-            onClick={() => { setAddAccountStep('form'); setShowAddAccount(true); }}
-            className="mt-6 w-full flex items-center gap-3 text-sm font-medium text-white rounded-2xl px-4 py-2.5 bg-white/10 hover:bg-white/20 transition-colors"
-          >
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-[#1D1F58]">
-              <Plus className="w-4 h-4" />
-            </span>
-            <span>Add Account</span>
-          </button>
-        </div>
-
-        <div className="p-4 border-t border-white/10">
-          <button className="flex items-center gap-2 text-sm opacity-75 hover:opacity-100 px-3 py-2">
-            <span>❤️</span> Refer a Friend
-          </button>
-        </div>
+        )}
       </div>
 
       {/* Main Content Area - Plan View */}
@@ -913,7 +766,7 @@ const App = () => {
                   'bg-red-100 text-red-800'
                 }`}>
                   <div className="text-2xl font-bold">{formatMoney(Math.abs(readyToAssign))}</div>
-                  <div className="text-xs">Ready to Assign</div>
+                  <div className="text-xs">All Money Assigned</div>
                 </div>
                 <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2">
                   Assign
@@ -950,7 +803,7 @@ const App = () => {
                 <col style={{ width: '150px' }} />
                 <col style={{ width: '180px' }} />
               </colgroup>
-              <thead className="bg-gray-50 border-b text-xs font-medium text-gray-500 uppercase sticky top-0">
+              <thead className="border-b text-xs font-medium text-gray-500 uppercase sticky top-0" style={{backgroundColor: '#FDFCFC'}}>
                 <tr>
                   <th className="px-2 py-3">
                     <ChevronDown className="w-4 h-4 mx-auto" />
@@ -1012,7 +865,10 @@ const App = () => {
                         return (
                           <tr 
                             key={category.id}
-                            className={`border-b ${category.selected ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                            className={`border-b ${category.selected ? 'bg-blue-50' : ''}`}
+                            style={category.selected ? {} : {backgroundColor: '#FDFCFC'}}
+                            onMouseEnter={(e) => { if (!category.selected) { ((e.target as HTMLElement).closest('tr') as HTMLElement).style.backgroundColor = '#F5F5F5'; } }}
+                            onMouseLeave={(e) => { if (!category.selected) { ((e.target as HTMLElement).closest('tr') as HTMLElement).style.backgroundColor = '#FDFCFC'; } }}
                           >
                             <td className="px-2 py-3"></td>
                             <td className="px-2 py-3">
@@ -1078,6 +934,101 @@ const App = () => {
           </div>
         </div>
       )}
+
+      {/* Right Sidebar */}
+      {activeView === 'Plan' && !selectedAccount && (
+        <div className="w-80 bg-white border-l flex flex-col">
+          {/* Summary Section */}
+          <div className="p-4 border-b">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="text-sm font-medium">September's Summary</div>
+              <ChevronDown className="w-4 h-4" />
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Left Over from Last Month</span>
+                <span>{formatMoney(0)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Assigned in September</span>
+                <span>{formatMoney(0)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Activity</span>
+                <span>{formatMoney(0)}</span>
+              </div>
+              <div className="flex justify-between font-medium">
+                <span className="text-gray-600">Available</span>
+                <span>{formatMoney(0)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Cost to Be Me Section */}
+          <div className="p-4 border-b">
+            <div className="text-sm font-medium mb-2">Cost to Be Me</div>
+            <div className="text-sm text-gray-600">September's Targets</div>
+            <div className="text-blue-600 text-sm mt-2 cursor-pointer hover:underline">
+              Enter your expected income
+            </div>
+          </div>
+
+          {/* Auto Assign Section */}
+          <div className="p-4 border-b">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">⚡ Auto Assign</span>
+              <ChevronDown className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Stats Section */}
+          <div className="flex-1 p-4 space-y-4">
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-blue-600 hover:underline cursor-pointer">Underfunded</span>
+                <span className="text-blue-600">{formatMoney(0)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-blue-600 hover:underline cursor-pointer">Assigned Last Month</span>
+                <span className="text-blue-600">{formatMoney(0)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-blue-600 hover:underline cursor-pointer">Spent Last Month</span>
+                <span className="text-blue-600">{formatMoney(0)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-blue-600 hover:underline cursor-pointer">Average Assigned</span>
+                <span className="text-blue-600">{formatMoney(0)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-blue-600 hover:underline cursor-pointer">Average Spent</span>
+                <span className="text-blue-600">{formatMoney(0)}</span>
+              </div>
+            </div>
+
+            <div className="border-t pt-4 space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-blue-600 hover:underline cursor-pointer">Reset Available Amounts</span>
+                <span className="text-blue-600">{formatMoney(0)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-blue-600 hover:underline cursor-pointer">Reset Assigned Amounts</span>
+                <span className="text-blue-600">{formatMoney(0)}</span>
+              </div>
+            </div>
+
+            <div className="border-t pt-4">
+              <div className="text-sm font-medium mb-2">Assigned in Future Months</div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">October</span>
+                <span>{formatMoney(0)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       </div>
       )}
 
