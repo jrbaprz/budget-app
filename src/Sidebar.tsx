@@ -76,13 +76,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         >
           <div className="flex flex-col gap-1 text-left">
             <div 
-              className="text-[26px] font-semibold leading-[32px] tracking-[-0.39px]" 
+              className="text-[26px] font-semibold leading-[32px]" 
               style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
             >
               {budgetName}
             </div>
             <div 
-              className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+              className="text-[14.9px] leading-[22px]" 
               style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
             >
               {email}
@@ -129,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Accounts Section */}
       <div className="flex flex-col gap-4">
         <div 
-          className="text-[26px] font-semibold leading-[32px] tracking-[-0.39px]" 
+          className="text-[26px] font-semibold leading-[32px]" 
           style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}
         >
           Accounts
@@ -150,7 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   Cash
                 </div>
                 <div 
-                  className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+                  className="text-[14.9px] leading-[22px]" 
                   style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
                 >
                   {accounts.filter((a) => a.group === 'cash').length} accounts
@@ -216,7 +216,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   Credit
                 </div>
                 <div 
-                  className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+                  className="text-[14.9px] leading-[22px]" 
                   style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
                 >
                   {accounts.filter((a) => a.group === 'credit').length} accounts
@@ -276,7 +276,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   Loans
                 </div>
                 <div 
-                  className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+                  className="text-[14.9px] leading-[22px]" 
                   style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
                 >
                   {accounts.filter((a) => a.group === 'loans').length} accounts
@@ -336,7 +336,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   Tracking
                 </div>
                 <div 
-                  className="text-[14.9px] leading-[22px] tracking-[-0.08px]" 
+                  className="text-[14.9px] leading-[22px]" 
                   style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
                 >
                   {accounts.filter((a) => a.group === 'tracking').length} accounts
