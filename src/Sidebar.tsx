@@ -54,6 +54,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   });
   const [sidebarWidth, setSidebarWidth] = useState(250);
   const [isResizing, setIsResizing] = useState(false);
+  const startXRef = useRef<number>(0);
+  const startWidthRef = useRef<number>(250);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   const toggleGroup = (group: string) => {
@@ -63,13 +65,17 @@ const Sidebar: React.FC<SidebarProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
+    startXRef.current = e.clientX;
+    startWidthRef.current = sidebarWidth;
   };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
       
-      const newWidth = e.clientX;
+      const deltaX = e.clientX - startXRef.current;
+      const newWidth = startWidthRef.current + deltaX;
+      
       // Enforce minimum width of 275px
       if (newWidth >= 275) {
         setSidebarWidth(newWidth);
