@@ -96,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         {/* Navigation Card */}
-        <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06),0px_2px_6px_0px_rgba(0,0,0,0.06)] overflow-hidden">
+        <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
           {navItems.map((item, index) => {
             const isActive = activeView === item.key && !selectedAccount;
             return (
@@ -137,7 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Cash Accounts */}
         {accounts.filter((a) => a.group === 'cash').length > 0 && (
-          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06),0px_2px_6px_0px_rgba(0,0,0,0.06)] overflow-hidden">
+          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
             <button
               onClick={() => toggleGroup('cash')}
               className="flex items-center justify-between w-full h-[80px] px-[24px] hover:bg-gray-50 transition-colors"
@@ -203,7 +203,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Credit Accounts */}
         {accounts.filter((a) => a.group === 'credit').length > 0 && (
-          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06),0px_2px_6px_0px_rgba(0,0,0,0.06)] overflow-hidden">
+          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
             <button
               onClick={() => toggleGroup('credit')}
               className="flex items-center justify-between w-full h-[80px] px-[24px] hover:bg-gray-50 transition-colors"
@@ -263,7 +263,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Loans Accounts */}
         {accounts.filter((a) => a.group === 'loans').length > 0 && (
-          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06),0px_2px_6px_0px_rgba(0,0,0,0.06)] overflow-hidden">
+          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
             <button
               onClick={() => toggleGroup('loans')}
               className="flex items-center justify-between w-full h-[80px] px-[24px] hover:bg-gray-50 transition-colors"
@@ -323,7 +323,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Tracking Accounts */}
         {accounts.filter((a) => a.group === 'tracking').length > 0 && (
-          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.06),0px_2px_6px_0px_rgba(0,0,0,0.06)] overflow-hidden">
+          <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
             <button
               onClick={() => toggleGroup('tracking')}
               className="flex items-center justify-between w-full h-[80px] px-[24px] hover:bg-gray-50 transition-colors"
