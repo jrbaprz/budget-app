@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Plus } from 'lucide-react';
+import { Plus, LogOut } from 'lucide-react';
+import { useAuth } from './contexts/AuthContext';
 
 // New icons matching Figma design
 const OverviewIcon = () => (
@@ -63,6 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenPlan,
   onViewAllPlans,
 }) => {
+  const { user, signOut } = useAuth();
   const [expandedGroups, setExpandedGroups] = useState<{[key: string]: boolean}>({
     cash: true,
     credit: true,
@@ -180,7 +182,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               className="text-[14px] leading-[22px]" 
               style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400, color: textColor }}
             >
-              {email}
+              {user?.email || email}
             </div>
           </div>
           <div className="transform rotate-90">
@@ -214,6 +216,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                 </div>
               </button>
+            </div>
+
+            {/* Horizontal Divider */}
+            <div className="h-px relative shrink-0 w-full">
+              <div aria-hidden="true" className="absolute border-[#e4e2e1] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
             </div>
 
             {/* Horizontal Divider */}
@@ -338,6 +345,29 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>,
                 document.body
               )}
+            </div>
+
+            {/* Horizontal Divider */}
+            <div className="h-px relative shrink-0 w-full">
+              <div aria-hidden="true" className="absolute border-[#e4e2e1] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
+            </div>
+
+            {/* Logout Button */}
+            <div className="box-border content-stretch flex gap-[12px] items-center p-[6px] relative w-full">
+              <button
+                onClick={async () => {
+                  await signOut();
+                  onBudgetMenuClick(); // Close menu after logout
+                }}
+                className="basis-0 box-border content-stretch flex grow items-center justify-between min-h-px min-w-px p-[8px] relative rounded-[6px] hover:bg-red-50 transition-colors group"
+              >
+                <div className="basis-0 content-stretch flex gap-[16px] grow items-center min-h-px min-w-px relative shrink-0">
+                  <LogOut className="w-4 h-4 text-red-600 group-hover:text-red-700" />
+                  <div className="flex flex-col justify-center leading-[0] not-italic relative shrink-0 text-[16px] text-nowrap" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}>
+                    <p className="leading-none whitespace-pre text-red-600 group-hover:text-red-700">Logout</p>
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
         </div>

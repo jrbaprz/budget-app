@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, Plus, Target, TrendingUp, Building, Star, Link, FileText, RotateCcw, RotateCw, Check, MoreHorizontal, HelpCircle, Folder, Pencil, Trash2 } from 'lucide-react';
 import Sidebar from './Sidebar';
+import { useAuth } from './contexts/AuthContext';
+import { Auth } from './components/Auth';
 
 // Account type groupings and subtype definitions
 const ACCOUNT_TYPE_GROUPS = {
@@ -61,6 +63,8 @@ const getGroupForSubtype = (subtype: string): GroupKey => {
 };
 
 const App = () => {
+  const { user, loading: authLoading } = useAuth();
+  
   // State Management
   const [currentMonth, setCurrentMonth] = useState(new Date(2025, 8, 1));
   const [activeView, setActiveView] = useState('PreBudget');
@@ -518,6 +522,23 @@ const App = () => {
     color: '#1E40AF'
   };
 
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{backgroundColor: '#FDFCFC'}}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth page if not logged in
+  if (!user) {
+    return <Auth />;
+  }
+
   return (
     <React.Fragment>
       {activeView === 'PreBudget' && (
@@ -700,48 +721,47 @@ const App = () => {
         <React.Fragment>
         <div className="flex-1 flex flex-col gap-0 pb-[45px] min-w-0 h-screen overflow-y-auto scrollbar-overlay">
           {/* Header - Sticky */}
-          <div className="sticky top-0 z-20 bg-[#FDFCFC] flex items-center justify-between overflow-clip py-[16px] px-[8px]">
-            <div className="flex gap-[16px] items-center">
-              <div className="flex gap-[8px] items-center">
-                <button onClick={() => changeMonth(-1)} className="w-[20px] h-[20px] flex items-center justify-center">
-                  <ChevronLeft className="w-[10px] h-[10px] text-[#332f30]" strokeWidth={1.5} />
-                </button>
-                <div className="px-[8px]">
-                  <div className="text-[20px] font-semibold leading-[15.75px] text-[#332f30]" style={{ fontFamily: "'PP Mori', 'Futura PT', sans-serif" }}>
-                    {formatMonth(currentMonth)}
+          <div className="sticky top-0 z-20 bg-[#FDFCFC] flex flex-col overflow-clip">
+            {/* Date and Status Row */}
+            <div className="flex items-center justify-between py-[16px] px-[8px]">
+              <div className="flex gap-[16px] items-center">
+                <div className="flex gap-[8px] items-center">
+                  <button onClick={() => changeMonth(-1)} className="w-[20px] h-[20px] flex items-center justify-center">
+                    <ChevronLeft className="w-[10px] h-[10px] text-[#332f30]" strokeWidth={1.5} />
+                  </button>
+                  <div className="px-[8px]">
+                    <div className="text-[20px] font-semibold leading-[15.75px] text-[#332f30]" style={{ fontFamily: "'PP Mori', 'Futura PT', sans-serif" }}>
+                      {formatMonth(currentMonth)}
+                    </div>
+                  </div>
+                  <button onClick={() => changeMonth(1)} className="w-[20px] h-[20px] flex items-center justify-center">
+                    <ChevronRight className="w-[10px] h-[10px] text-[#332f30]" strokeWidth={1.5} />
+                  </button>
+                </div>
+                <div className="text-[14.9px] leading-[22px] text-[rgba(50,48,47,0.5)]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                  Enter a note...
+                </div>
+              </div>
+              <div className="bg-[#ecf2f6] rounded-[16px] p-[16px] flex gap-[24px] items-center">
+                <div className="flex flex-col">
+                  <div className="text-[18px] font-semibold leading-[25.2px] text-[#696763]" style={{ fontFamily: "'PP Mori', 'Futura PT', sans-serif" }}>
+                    {formatMoney(Math.abs(readyToAssign))}
+                  </div>
+                  <div className="text-[12px] leading-[16.8px] text-[#696763]" style={{ fontFamily: "'PP Mori', 'Futura PT', sans-serif" }}>
+                    All Money Assigned
                   </div>
                 </div>
-                <button onClick={() => changeMonth(1)} className="w-[20px] h-[20px] flex items-center justify-center">
-                  <ChevronRight className="w-[10px] h-[10px] text-[#332f30]" strokeWidth={1.5} />
-                </button>
-              </div>
-              <div className="text-[14.9px] leading-[22px] text-[rgba(50,48,47,0.5)]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
-                Enter a note...
-              </div>
-            </div>
-            <div className="bg-[#ecf2f6] rounded-[16px] p-[16px] flex gap-[24px] items-center">
-              <div className="flex flex-col">
-                <div className="text-[18px] font-semibold leading-[25.2px] text-[#696763]" style={{ fontFamily: "'PP Mori', 'Futura PT', sans-serif" }}>
-                  {formatMoney(Math.abs(readyToAssign))}
-                </div>
-                <div className="text-[12px] leading-[16.8px] text-[#696763]" style={{ fontFamily: "'PP Mori', 'Futura PT', sans-serif" }}>
-                  All Money Assigned
+                <div className="w-[20px] h-[20px]">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="10" cy="10" r="9" stroke="#696763" strokeWidth="1.5" fill="none"/>
+                    <path d="M13.5 9L10 12.5L6.5 9" stroke="#696763" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
               </div>
-              <div className="w-[20px] h-[20px]">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="10" cy="10" r="9" stroke="#696763" strokeWidth="1.5" fill="none"/>
-                  <path d="M13.5 9L10 12.5L6.5 9" stroke="#696763" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
             </div>
-          </div>
 
-          {/* Category Card */}
-          <div className="flex gap-[10px] items-center p-[8px] w-full">
-            <div className="flex-1 bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] flex flex-col overflow-x-auto min-w-0">
             {/* Toolbar Row */}
-            <div className="flex gap-[16px] items-center px-[24px] py-[8px] bg-white">
+            <div className="flex gap-[16px] items-center px-[8px] pb-[8px]">
               <div className="flex gap-[12px] items-center py-[4px]">
                 <Plus className="w-[10px] h-[10px] text-[#332f30]" strokeWidth={2} />
                 <div className="text-[14px] leading-[16.8px] text-[#332f30]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
@@ -771,7 +791,11 @@ const App = () => {
                 </div>
               </div>
             </div>
-            <div className="h-[1px] bg-[#e5e7eb] w-full"></div>
+          </div>
+
+          {/* Category Card */}
+          <div className="flex gap-[10px] items-center p-[8px] w-full">
+            <div className="flex-1 bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] flex flex-col min-w-0">
 
             {/* Table Header */}
             <div className="flex gap-[12px] h-[80px] items-center p-[8px]">
