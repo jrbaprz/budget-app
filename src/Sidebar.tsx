@@ -190,10 +190,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </button>
 
-        {/* Budget Menu Dropdown */}
+        {/* Budget Menu Dropdown - Overview/Plan Section */}
         <div 
           ref={budgetMenuRef}
-          className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-visible transition-all duration-300 ease-in-out"
+          className="bg-white rounded-[12px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-visible transition-all duration-300 ease-in-out"
           style={{
             maxHeight: showBudgetMenu ? '500px' : '0px',
             opacity: showBudgetMenu ? 1 : 0,
@@ -201,24 +201,31 @@ const Sidebar: React.FC<SidebarProps> = ({
             pointerEvents: showBudgetMenu ? 'auto' : 'none',
           }}
         >
-          <div className="transition-all duration-300 overflow-visible rounded-[16px]">
-            <div className="p-[8px]">
+          <div className="transition-all duration-300 overflow-visible rounded-[12px]">
+            {/* New Plan Button */}
+            <div className="box-border content-stretch flex gap-[12px] items-center p-[6px] relative rounded-tl-[16px] rounded-tr-[16px] w-full">
               <button
                 onClick={onNewPlanClick}
-                className="w-full flex items-center gap-3 px-[16px] py-[16px] hover:bg-gray-50 rounded-[8px] text-left transition-colors"
+                className="basis-0 box-border content-stretch flex grow items-center justify-between min-h-px min-w-px p-[8px] relative rounded-[6px] hover:bg-gray-50 transition-colors"
               >
-                <span className="font-medium text-gray-900" style={{ fontFamily: "'Futura PT', sans-serif" }}>
-                  New Plan
-                </span>
+                <div className="basis-0 content-stretch flex gap-[16px] grow items-center min-h-px min-w-px relative shrink-0">
+                  <div className="flex flex-col justify-center leading-[0] not-italic relative shrink-0 text-[16px] text-nowrap" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}>
+                    <p className="leading-none whitespace-pre">New Plan</p>
+                  </div>
+                </div>
               </button>
             </div>
 
-            <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
+            {/* Horizontal Divider */}
+            <div className="h-px relative shrink-0 w-full">
+              <div aria-hidden="true" className="absolute border-[#e4e2e1] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
+            </div>
 
-            <div className="p-[8px]">
+            {/* Open Plan Button */}
+            <div className="box-border content-stretch flex gap-[12px] items-center p-[6px] relative rounded-tl-[16px] rounded-tr-[16px] w-full">
               <div
                 ref={openPlanTriggerRef}
-                className="relative w-full flex items-center justify-between px-[16px] py-[16px] hover:bg-gray-50 rounded-[8px] cursor-pointer transition-colors"
+                className="basis-0 bg-neutral-100 box-border content-stretch flex grow items-center justify-between min-h-px min-w-px p-[8px] relative rounded-[6px] cursor-pointer transition-colors hover:bg-neutral-200"
                 onMouseEnter={() => {
                   console.log('Mouse entered Open Plan');
                   // Clear any pending close timeout
@@ -247,22 +254,25 @@ const Sidebar: React.FC<SidebarProps> = ({
                   setOpenPlanOpen(v => !v);
                 }}
               >
-                <span className="font-medium" style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}>
-                  Open Plan
-                </span>
-                <div className="transform rotate-180">
-                  <svg width="4" height="8" viewBox="0 0 4 8" fill="none">
-                    <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                <div className="basis-0 content-stretch flex grow items-center justify-between min-h-px min-w-px relative shrink-0">
+                  <div className="flex flex-col justify-center leading-[0] not-italic relative shrink-0 text-[16px] text-nowrap" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}>
+                    <p className="leading-none whitespace-pre">Open Plan</p>
+                  </div>
+                  <div className="h-[8px] relative shrink-0 w-[4px]">
+                    <svg width="4" height="8" viewBox="0 0 4 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L3 4L1 7" stroke={textColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
               {openPlanOpen && ReactDOM.createPortal(
                 <div 
-                  className="fixed bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] w-64"
+                  className="fixed bg-white box-border content-stretch flex flex-col items-start rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)]"
                   style={{
                     top: `${submenuPosition.top}px`,
                     left: `${submenuPosition.left}px`,
                     zIndex: 99999,
+                    width: '259px',
                     animation: 'slideIn 0.2s ease-out',
                   }}
                   onMouseEnter={() => {
@@ -278,40 +288,52 @@ const Sidebar: React.FC<SidebarProps> = ({
                     setOpenPlanOpen(false);
                   }}
                 >
-                  <div className="px-4 py-3 border-b" style={{ borderColor: borderColor }}>
-                    <div className="text-xs font-medium text-gray-500" style={{ fontFamily: "'Futura PT', sans-serif" }}>
-                      Recent Plans
+                  {/* Recent Plans Section */}
+                  <div className="box-border content-stretch flex gap-[12px] items-center p-[8px] relative rounded-tl-[16px] rounded-tr-[16px] shrink-0 w-full">
+                    <div className="basis-0 flex flex-row grow items-center self-stretch shrink-0">
+                      <div className="basis-0 box-border content-stretch flex grow h-full items-center justify-between min-h-px min-w-px p-[8px] relative shrink-0">
+                        <div className="basis-0 content-stretch flex flex-col gap-[8px] grow items-start justify-center leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-nowrap" style={{ color: textColor }}>
+                          <div className="flex flex-col justify-center relative shrink-0 text-[14px]" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                            <p className="leading-[22px] text-nowrap whitespace-pre">Recent Plans</p>
+                          </div>
+                          {plans.length === 0 ? (
+                            <div className="flex flex-col justify-center relative shrink-0 text-[14px] text-gray-500" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 400 }}>
+                              <p className="leading-[22px] text-nowrap whitespace-pre">No plans yet</p>
+                            </div>
+                          ) : (
+                            plans.slice(0, 6).map((p) => (
+                              <button
+                                key={p.id}
+                                onClick={() => onOpenPlan(p.id)}
+                                className="flex flex-col justify-center relative shrink-0 text-[16px] hover:underline text-left"
+                                style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500 }}
+                              >
+                                <p className="leading-[25.2px] text-nowrap whitespace-pre">{p.name}</p>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="p-[8px] max-h-60 overflow-auto">
-                    {plans.length === 0 ? (
-                      <div className="px-4 py-3 text-sm text-gray-500" style={{ fontFamily: "'Futura PT', sans-serif" }}>
-                        No plans yet
-                      </div>
-                    ) : (
-                      plans.slice(0, 6).map((p) => (
+
+                  {/* Horizontal Divider */}
+                  <div className="h-px w-full shrink-0" style={{ backgroundColor: borderColor }} />
+
+                  {/* View all plans Button */}
+                  <div className="box-border content-stretch flex gap-[12px] items-center px-[8px] py-[4px] relative rounded-tl-[16px] rounded-tr-[16px] shrink-0 w-full">
+                    <div className="basis-0 flex flex-row grow items-center self-stretch shrink-0">
+                      <div className="basis-0 box-border content-stretch flex grow h-full items-center justify-between min-h-px min-w-px p-[8px] relative rounded-[8px] shrink-0">
                         <button
-                          key={p.id}
-                          onClick={() => onOpenPlan(p.id)}
-                          className="w-full flex items-center px-[16px] py-[16px] hover:bg-gray-50 rounded-[8px] text-left transition-colors"
+                          onClick={onViewAllPlans}
+                          className="basis-0 content-stretch flex grow items-center min-h-px min-w-px relative shrink-0 hover:bg-gray-50 transition-colors rounded-[8px] w-full h-full"
                         >
-                          <span className="text-[16px] font-medium" style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}>
-                            {p.name}
-                          </span>
+                          <div className="flex flex-col justify-center leading-[0] not-italic relative shrink-0 text-[16px] text-nowrap" style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}>
+                            <p className="leading-[25.2px] whitespace-pre">View all plans</p>
+                          </div>
                         </button>
-                      ))
-                    )}
-                  </div>
-                  <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
-                  <div className="p-[8px]">
-                    <button
-                      onClick={onViewAllPlans}
-                      className="w-full flex items-center px-[16px] py-[16px] hover:bg-gray-50 rounded-[8px] text-left transition-colors"
-                    >
-                      <span className="text-[16px] font-medium" style={{ fontFamily: "'Futura PT', sans-serif", color: textColor }}>
-                        View all plans
-                      </span>
-                    </button>
+                      </div>
+                    </div>
                   </div>
                 </div>,
                 document.body
@@ -321,26 +343,26 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
       {/* Navigation Card */}
-        <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
+        <div className="bg-white rounded-[12px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
           {navItems.map((item, index) => {
             const isActive = activeView === item.key && !selectedAccount;
             return (
               <React.Fragment key={item.key}>
-                <div className="box-border flex gap-[12px] h-[80px] items-center p-[8px]">
+                <div className="box-border flex gap-[12px] items-center p-[6px]">
                   <button
                     onClick={() => onViewChange(item.key)}
-                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[16px] transition-colors rounded-[8px] ${
+                    className={`flex-1 box-border flex items-center gap-[16px] min-h-[1px] min-w-[1px] p-[8px] transition-colors rounded-[6px] ${
                       isActive ? 'bg-neutral-100' : 'hover:bg-gray-50'
                     }`}
                   >
+                    <div className="flex items-center justify-center text-[#32302f]">
+                      {item.icon}
+                    </div>
                     <div 
                       className="text-[16px] font-medium leading-[25.2px]" 
                       style={{ fontFamily: "'Futura PT', sans-serif", fontWeight: 500, color: textColor }}
                     >
                       {item.label}
-                    </div>
-                    <div className="w-[10px] h-[11px] text-[#32302f]">
-                      {item.icon}
                     </div>
                   </button>
                 </div>
@@ -399,7 +421,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Cash Accounts */}
         {accounts.filter((a) => a.group === 'cash').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
-            <div className="box-border flex gap-[12px] h-[80px] items-center p-[8px]">
+            <div className="box-border flex gap-[12px] items-center p-[8px]">
               <button
                 onClick={() => toggleGroup('cash')}
                 className="flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] px-[16px] py-[8px] hover:bg-gray-50 transition-colors"
@@ -437,15 +459,15 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div 
               className="transition-all duration-300 ease-in-out overflow-hidden"
               style={{
-                maxHeight: expandedGroups.cash ? `${(accounts.filter((a) => a.group === 'cash').length * 81) + 1}px` : '0px',
+                maxHeight: expandedGroups.cash ? `${(accounts.filter((a) => a.group === 'cash').length * 60) + 1}px` : '0px',
               }}
             >
               <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
               {accounts.filter((a) => a.group === 'cash').map((account) => (
-                <div key={account.id} className="box-border flex gap-[12px] h-[80px] items-center px-[8px] py-[4px]">
+                <div key={account.id} className="box-border flex gap-[12px] items-center px-[8px] py-[4px]">
                   <button
                     onClick={() => onAccountClick(account)}
-                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[16px] transition-colors rounded-[8px] ${
+                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[12px] transition-colors rounded-[8px] ${
                       selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
                     }`}
                   >
@@ -471,7 +493,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Credit Accounts */}
         {accounts.filter((a) => a.group === 'credit').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
-            <div className="box-border flex gap-[12px] h-[80px] items-center p-[8px]">
+            <div className="box-border flex gap-[12px] items-center p-[8px]">
               <button
                 onClick={() => toggleGroup('credit')}
                 className="flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] px-[16px] py-[8px] hover:bg-gray-50 transition-colors"
@@ -506,15 +528,15 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div 
               className="transition-all duration-300 ease-in-out overflow-hidden"
               style={{
-                maxHeight: expandedGroups.credit ? `${(accounts.filter((a) => a.group === 'credit').length * 81) + 1}px` : '0px',
+                maxHeight: expandedGroups.credit ? `${(accounts.filter((a) => a.group === 'credit').length * 60) + 1}px` : '0px',
               }}
             >
               <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
               {accounts.filter((a) => a.group === 'credit').map((account) => (
-                <div key={account.id} className="box-border flex gap-[12px] h-[80px] items-center px-[8px] py-[4px]">
+                <div key={account.id} className="box-border flex gap-[12px] items-center px-[8px] py-[4px]">
                   <button
                     onClick={() => onAccountClick(account)}
-                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[16px] transition-colors rounded-[8px] ${
+                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[12px] transition-colors rounded-[8px] ${
                       selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
                     }`}
                   >
@@ -537,7 +559,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Loans Accounts */}
         {accounts.filter((a) => a.group === 'loans').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
-            <div className="box-border flex gap-[12px] h-[80px] items-center p-[8px]">
+            <div className="box-border flex gap-[12px] items-center p-[8px]">
               <button
                 onClick={() => toggleGroup('loans')}
                 className="flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] px-[16px] py-[8px] hover:bg-gray-50 transition-colors"
@@ -572,15 +594,15 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div 
               className="transition-all duration-300 ease-in-out overflow-hidden"
               style={{
-                maxHeight: expandedGroups.loans ? `${(accounts.filter((a) => a.group === 'loans').length * 81) + 1}px` : '0px',
+                maxHeight: expandedGroups.loans ? `${(accounts.filter((a) => a.group === 'loans').length * 60) + 1}px` : '0px',
               }}
             >
               <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
               {accounts.filter((a) => a.group === 'loans').map((account) => (
-                <div key={account.id} className="box-border flex gap-[12px] h-[80px] items-center px-[8px] py-[4px]">
+                <div key={account.id} className="box-border flex gap-[12px] items-center px-[8px] py-[4px]">
                   <button
                     onClick={() => onAccountClick(account)}
-                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[16px] transition-colors rounded-[8px] ${
+                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[12px] transition-colors rounded-[8px] ${
                       selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
                     }`}
                   >
@@ -603,7 +625,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Tracking Accounts */}
         {accounts.filter((a) => a.group === 'tracking').length > 0 && (
           <div className="bg-white rounded-[16px] shadow-[0px_2px_6px_0px_rgba(0,0,0,0.12)] overflow-hidden">
-            <div className="box-border flex gap-[12px] h-[80px] items-center p-[8px]">
+            <div className="box-border flex gap-[12px] items-center p-[8px]">
               <button
                 onClick={() => toggleGroup('tracking')}
                 className="flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] px-[16px] py-[8px] hover:bg-gray-50 transition-colors"
@@ -641,15 +663,15 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div 
               className="transition-all duration-300 ease-in-out overflow-hidden"
               style={{
-                maxHeight: expandedGroups.tracking ? `${(accounts.filter((a) => a.group === 'tracking').length * 81) + 1}px` : '0px',
+                maxHeight: expandedGroups.tracking ? `${(accounts.filter((a) => a.group === 'tracking').length * 60) + 1}px` : '0px',
               }}
             >
               <div className="h-[1px] w-full" style={{ backgroundColor: borderColor }} />
               {accounts.filter((a) => a.group === 'tracking').map((account) => (
-                <div key={account.id} className="box-border flex gap-[12px] h-[80px] items-center px-[8px] py-[4px]">
+                <div key={account.id} className="box-border flex gap-[12px] items-center px-[8px] py-[4px]">
                   <button
                     onClick={() => onAccountClick(account)}
-                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[16px] transition-colors rounded-[8px] ${
+                    className={`flex-1 box-border flex items-center justify-between min-h-[1px] min-w-[1px] p-[12px] transition-colors rounded-[8px] ${
                       selectedAccount?.id === account.id ? 'bg-neutral-100' : 'hover:bg-gray-50'
                     }`}
                   >
